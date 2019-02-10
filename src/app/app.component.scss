@@ -1,10 +1,11 @@
+@import "src/variables.scss";
+
 :host {
     height: inherit;
     display: block;
     padding: 0.5rem;
     box-sizing: border-box;
 }
-@import "~src/variables.scss";
 
 header {
     text-align: center;

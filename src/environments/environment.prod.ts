@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  firebaseConfig : {
+  firebase : {
     apiKey: 'AIzaSyBazS1gZpQjjDMYgndTntm4VUEaBeQYC34',
     authDomain: 'fajne-app.firebaseapp.com',
     databaseURL: 'https://fajne-app.firebaseio.com',
