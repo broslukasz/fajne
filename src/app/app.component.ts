@@ -14,7 +14,6 @@ export class AppComponent implements OnInit {
   constructor(private db: AngularFireDatabase) {}
 
   public ngOnInit(): void {
-    this.db.object('connected').set(false);
     this.connected = this.db.object<boolean>('connected').valueChanges();
   }
 }

@@ -1,0 +1,25 @@
+:host {
+    height: inherit;
+    display: block;
+    padding: 0.5rem;
+    box-sizing: border-box;
+}
+@import "~src/variables.scss";
+
+header {
+    text-align: center;
+}
+
+main {
+    height: 90vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+button {
+    width: 6rem;
+    height: 6rem;
+    font-size: $font-2x-large;
+}
