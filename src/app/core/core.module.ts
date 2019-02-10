@@ -3,16 +3,19 @@ import { CommonModule } from '@angular/common';
 import { AngularFireModule } from '@angular/fire';
 import { environment } from 'src/environments/environment';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
+import { AngularFireDatabase } from '@angular/fire/database';
 
 @NgModule({
   declarations: [],
   imports: [
     CommonModule,
-    AngularFireModule.initializeApp(environment.firebase, 'fajne-app'),
+    AngularFireModule.initializeApp(environment.firebase),
     AngularFirestoreModule
   ],
   providers: [
-
+    AngularFireDatabase
+  ],
+  exports: [
   ]
 })
 export class CoreModule {
