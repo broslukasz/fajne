@@ -8,7 +8,6 @@ import { Observable } from 'rxjs';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-  title = 'fajne';
   connected: Observable<boolean>;
 
   constructor(private db: AngularFireDatabase) {}

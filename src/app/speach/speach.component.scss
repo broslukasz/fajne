@@ -1,0 +1,15 @@
+@import "src/variables.scss";
+
+main {
+  height: 80vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+button {
+  width: 6rem;
+  height: 6rem;
+  font-size: $font-2x-large;
+}
