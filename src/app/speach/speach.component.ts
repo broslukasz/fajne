@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AngularFireDatabase } from '@angular/fire/database';
 import { combineLatest, Observable } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
@@ -12,7 +12,7 @@ import * as firebase from 'firebase/app';
   templateUrl: './speach.component.html',
   styleUrls: ['./speach.component.scss']
 })
-export class SpeachComponent implements OnInit {
+export class SpeachComponent implements OnInit, OnDestroy {
   private connected: Observable<boolean | null>;
   private speachRunning: Observable<boolean | null>;
   private currentSpeaker: Observable<string | null>;
@@ -28,6 +28,7 @@ export class SpeachComponent implements OnInit {
 
   ngOnInit() {
     this.initializeContextState();
+    this.db.database.ref('speach-running').onDisconnect().set(false);
 
     this.connected = this.db.object<boolean>('connected').valueChanges();
     this.speachRunning = this.db.object<boolean>('speach-running').valueChanges();
@@ -37,6 +38,10 @@ export class SpeachComponent implements OnInit {
       .subscribe(([speachRunning, currentSpeaker]: [boolean, string]) => {
         this.performContextTransition(speachRunning, currentSpeaker);
       });
+  }
+
+  public ngOnDestroy(): void {
+
   }
 
   public performContextAction(): void {
@@ -117,6 +122,6 @@ export class SpeachComponent implements OnInit {
   }
 
   private markSpeachAsCool(): void {
-    console.log('voted on it!')
+    this.db.object<boolean>('coolness-counter').update(true);
   }
 }
