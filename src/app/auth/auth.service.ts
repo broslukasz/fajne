@@ -19,11 +19,12 @@ export class AuthService {
 
   login(): void {
     this.afAuth.auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
-      .then(() => this.router.navigate(['speach']))
+      .then(() => console.log('user logged in'))
       .catch(error => console.log('auth error', error));
   }
-  logout() {
+
+  logout(): void {
     this.afAuth.auth.signOut();
-    this.router.navigate(['']);
+    console.log('user logged out in');
   }
 }
