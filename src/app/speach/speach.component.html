@@ -1,1 +1,1 @@
-<button (click)="performContextAction()" mat-fab color="primary" [disabled]="!(connected | async)">{{ contextAction }}</button>
+<button [ngClass]="buttonContextClass" (click)="performContextAction()" mat-fab color="primary" [disabled]="!(connected | async)">{{ contextAction }}</button>

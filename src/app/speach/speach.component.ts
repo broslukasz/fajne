@@ -4,6 +4,7 @@ import { combineLatest, Observable } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 import { ContextState } from '../enums/context-state.enum';
 import { ContextAction } from '../enums/context-action.enum';
+import { ButtonContextClass } from '../enums/button-context-class.enum';
 
 @Component({
   selector: 'app-speach',
@@ -14,6 +15,7 @@ export class SpeachComponent implements OnInit {
   private connected: Observable<boolean | null>;
   contextAction: ContextAction;
   contextState: ContextState;
+  buttonContextClass: ButtonContextClass;
 
   constructor(
     private db: AngularFireDatabase,
@@ -56,11 +58,11 @@ export class SpeachComponent implements OnInit {
 
   private initializeContextState(): void {
     this.authService.login();
+    this.buttonContextClass = ButtonContextClass.SpeachStart;
     this.finishLoginState();
   }
 
   private finishLoginState(): void {
-    this.authService.login();
     this.contextAction = ContextAction.SpeachStart;
     this.contextState = ContextState.SpeachStart;
   }
@@ -68,11 +70,13 @@ export class SpeachComponent implements OnInit {
   private finishSpeachStartState(): void {
     this.contextAction = ContextAction.SpeakerInSpeach;
     this.contextState = ContextState.SpeakerInSpeach;
+    this.buttonContextClass = ButtonContextClass.SpeakerInSpeach;
   }
 
   private finishSpeachStopState(): void {
     this.contextAction = ContextAction.SpeachStart;
     this.contextState = ContextState.SpeachStart;
+    this.buttonContextClass = ButtonContextClass.SpeachStart;
   }
 
   private makeSpeachCool(): void {
