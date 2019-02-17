@@ -13,6 +13,7 @@ import { ButtonContextClass } from '../enums/button-context-class.enum';
 })
 export class SpeachComponent implements OnInit {
   private connected: Observable<boolean | null>;
+  private speachRunning: Observable<boolean | null>;
   contextAction: ContextAction;
   contextState: ContextState;
   buttonContextClass: ButtonContextClass;
@@ -26,12 +27,12 @@ export class SpeachComponent implements OnInit {
     this.initializeContextState();
 
     this.connected = this.db.object<boolean>('connected').valueChanges();
+    this.speachRunning = this.db.object<boolean>('speach-running').valueChanges();
 
-    combineLatest(this.connected, this.authService.user$)
-      .subscribe(([connected, authState]: [boolean, any]) => {
-        console.log('connected', connected);
-        console.log('authState', authState);
-      })
+    combineLatest(this.speachRunning)
+      .subscribe(([speachRunning]: [boolean]) => {
+        this.performContextTransition(speachRunning);
+      });
   }
 
   public performContextAction(): void {
@@ -41,11 +42,11 @@ export class SpeachComponent implements OnInit {
         break;
 
       case ContextState.SpeachStart:
-        this.speachStartAction();
+        this.db.object<boolean>('speach-running').set(true);
         break;
 
       case ContextState.SpeakerInSpeach:
-        this.speakerInSpeachAction();
+        this.db.object<boolean>('speach-running').set(false);
         break;
 
       case ContextState.ParticipantInSpeach:
@@ -73,7 +74,7 @@ export class SpeachComponent implements OnInit {
     this.buttonContextClass = ButtonContextClass.SpeakerInSpeach;
   }
 
-  private speakerInSpeachAction(): void {
+  private speakerStopsSpeachAction(): void {
     this.contextAction = ContextAction.SpeachStart;
     this.contextState = ContextState.SpeachStart;
     this.buttonContextClass = ButtonContextClass.SpeachStart;
@@ -81,5 +82,15 @@ export class SpeachComponent implements OnInit {
 
   private participantInSpeachAction(): void {
 
+  }
+
+  private performContextTransition(speachRunning: boolean): void {
+    if (speachRunning) {
+      this.speachStartAction();
+    }
+
+    if (!speachRunning) {
+      this.speakerStopsSpeachAction();
+    }
   }
 }
