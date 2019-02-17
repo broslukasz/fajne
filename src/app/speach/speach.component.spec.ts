@@ -4,21 +4,25 @@ import { SpeachComponent } from './speach.component';
 import { AngularFireDatabase } from '@angular/fire/database';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { of } from 'rxjs';
+import { anything, instance, mock, when } from 'ts-mockito';
 
 describe('SpeachComponent', () => {
   let component: SpeachComponent;
   let fixture: ComponentFixture<SpeachComponent>;
   let angularFireDatabase: AngularFireDatabase;
+  let angularFireDatabaseMock: AngularFireDatabase = mock(AngularFireDatabase);
+
+  when(angularFireDatabaseMock.object(anything())).thenReturn(
+    <any>{
+      valueChanges: () => of({})
+    }
+  );
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [ SpeachComponent ],
       providers: [
-        {provide: AngularFireDatabase, useValue: {
-            object: () => {
-              return {valueChanges: () => of({})};
-            }
-          }}
+        {provide: AngularFireDatabase, useValue: instance(angularFireDatabaseMock)}
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA]
     })
@@ -29,7 +33,6 @@ describe('SpeachComponent', () => {
     fixture = TestBed.createComponent(SpeachComponent);
     component = fixture.componentInstance;
     angularFireDatabase = TestBed.get(AngularFireDatabase);
-    fixture.detectChanges();
   });
 
   it('should create', () => {
