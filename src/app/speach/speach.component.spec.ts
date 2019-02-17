@@ -5,6 +5,7 @@ import { AngularFireDatabase } from '@angular/fire/database';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { of } from 'rxjs';
 import { anything, instance, mock, when } from 'ts-mockito';
+import { AuthService } from '../auth/auth.service';
 
 describe('SpeachComponent', () => {
   let component: SpeachComponent;
@@ -22,7 +23,8 @@ describe('SpeachComponent', () => {
     TestBed.configureTestingModule({
       declarations: [ SpeachComponent ],
       providers: [
-        {provide: AngularFireDatabase, useValue: instance(angularFireDatabaseMock)}
+        {provide: AngularFireDatabase, useValue: instance(angularFireDatabaseMock)},
+        {provide: AuthService, useValue: instance(AuthService)}
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA]
     })
