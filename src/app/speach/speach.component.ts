@@ -5,6 +5,7 @@ import { AuthService } from '../auth/auth.service';
 import { ContextState } from '../enums/context-state.enum';
 import { ContextAction } from '../enums/context-action.enum';
 import { ButtonContextClass } from '../enums/button-context-class.enum';
+import * as firebase from 'firebase/app';
 
 @Component({
   selector: 'app-speach',
@@ -14,9 +15,11 @@ import { ButtonContextClass } from '../enums/button-context-class.enum';
 export class SpeachComponent implements OnInit {
   private connected: Observable<boolean | null>;
   private speachRunning: Observable<boolean | null>;
-  contextAction: ContextAction;
-  contextState: ContextState;
-  buttonContextClass: ButtonContextClass;
+  private currentSpeaker: Observable<string | null>;
+
+  public contextAction: ContextAction;
+  public contextState: ContextState;
+  public buttonContextClass: ButtonContextClass;
 
   constructor(
     private db: AngularFireDatabase,
@@ -28,10 +31,11 @@ export class SpeachComponent implements OnInit {
 
     this.connected = this.db.object<boolean>('connected').valueChanges();
     this.speachRunning = this.db.object<boolean>('speach-running').valueChanges();
+    this.currentSpeaker = this.db.object<string>('current-speaker').valueChanges();
 
-    combineLatest(this.speachRunning)
-      .subscribe(([speachRunning]: [boolean]) => {
-        this.performContextTransition(speachRunning);
+    combineLatest(this.speachRunning, this.currentSpeaker)
+      .subscribe(([speachRunning, currentSpeaker]: [boolean, string]) => {
+        this.performContextTransition(speachRunning, currentSpeaker);
       });
   }
 
@@ -42,15 +46,19 @@ export class SpeachComponent implements OnInit {
         break;
 
       case ContextState.SpeachStart:
-        this.db.object<boolean>('speach-running').set(true);
+        this.authService.user$.subscribe((user: firebase.User) => {
+          this.db.object<boolean>('speach-running').set(true);
+          this.db.object<string>('current-speaker').set(user.uid);
+        });
         break;
 
       case ContextState.SpeakerInSpeach:
         this.db.object<boolean>('speach-running').set(false);
+        this.db.object<string>('current-speaker').set(null);
         break;
 
       case ContextState.ParticipantInSpeach:
-        this.participantInSpeachAction();
+        this.markSpeachAsCool();
         break;
       default:
       throw new Error('Unrecognized action');
@@ -74,23 +82,41 @@ export class SpeachComponent implements OnInit {
     this.buttonContextClass = ButtonContextClass.SpeakerInSpeach;
   }
 
+  private setStateAsParticipantAction(): void {
+    this.contextAction = ContextAction.ParticipantInSpeach;
+    this.contextState = ContextState.ParticipantInSpeach;
+    this.buttonContextClass = ButtonContextClass.ParticipantInSpeach;
+  }
+
   private speakerStopsSpeachAction(): void {
     this.contextAction = ContextAction.SpeachStart;
     this.contextState = ContextState.SpeachStart;
     this.buttonContextClass = ButtonContextClass.SpeachStart;
   }
 
-  private participantInSpeachAction(): void {
-
-  }
-
-  private performContextTransition(speachRunning: boolean): void {
-    if (speachRunning) {
+  private performContextTransition(speachRunning: boolean, currentSpeaker: string): void {
+    if (this.iAmTheSpeaker(speachRunning, currentSpeaker)) {
       this.speachStartAction();
+    }
+
+    if (this.iAmTheParticipant(speachRunning, currentSpeaker)) {
+      this.setStateAsParticipantAction();
     }
 
     if (!speachRunning) {
       this.speakerStopsSpeachAction();
     }
+  }
+
+  private iAmTheSpeaker(speachRunning: boolean, currentSpeaker: string): boolean {
+    return speachRunning && currentSpeaker === this.authService.userUid;
+  }
+
+  private iAmTheParticipant(speachRunning: boolean, currentSpeaker: string) {
+    return speachRunning && currentSpeaker !== this.authService.userUid;
+  }
+
+  private markSpeachAsCool(): void {
+    console.log('voted on it!')
   }
 }

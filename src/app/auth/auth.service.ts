@@ -9,6 +9,7 @@ import * as firebase from 'firebase/app';
 })
 export class AuthService {
   public user$: Observable<firebase.User | null>;
+  public userUid: string;
 
   constructor(
     private router: Router,
@@ -19,7 +20,9 @@ export class AuthService {
 
   login(): void {
     this.afAuth.auth.signInAnonymously()
-      .then((credentials) => console.log('user logged with temporary credentials', credentials))
+      .then((credentials) => {
+        this.userUid = credentials.user.uid;
+      })
       .catch(error => console.log('auth error', error));
   }
 
