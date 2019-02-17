@@ -3,7 +3,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { AppComponent } from './app.component';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { AngularFireDatabase } from '@angular/fire/database';
-import {instance, mock} from 'ts-mockito';
+import { instance, mock } from 'ts-mockito';
 
 describe('AppComponent', () => {
   beforeEach(async(() => {
