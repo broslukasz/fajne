@@ -4,7 +4,6 @@ import { combineLatest, Observable } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 import { ContextState } from '../enums/context-state.enum';
 import { ContextAction } from '../enums/context-action.enum';
-import { log } from 'util';
 
 @Component({
   selector: 'app-speach',
@@ -28,23 +27,23 @@ export class SpeachComponent implements OnInit {
 
     combineLatest(this.connected, this.authService.user$)
       .subscribe(([connected, authState]: [boolean, any]) => {
-        log('connected', connected)
-        log('authState', authState)
+        console.log('connected', connected);
+        console.log('authState', authState);
       })
   }
 
   public performContextAction(): void {
     switch(this.contextState) {
       case ContextState.LoginView:
-        this.performLogin();
+        this.finishLoginState();
         break;
 
       case ContextState.SpeachStart:
-        this.performSpeachStart();
+        this.finishSpeachStartState();
         break;
 
       case ContextState.SpeakerInSpeach:
-        this.performSpeachStop();
+        this.finishSpeachStopState();
         break;
 
       case ContextState.ParticipantInSpeach:
@@ -56,22 +55,22 @@ export class SpeachComponent implements OnInit {
   }
 
   private initializeContextState(): void {
-    this.contextState = ContextState.LoginView;
-    this.contextAction = ContextAction.LoginView;
+    this.authService.login();
+    this.finishLoginState();
   }
 
-  private performLogin(): void {
+  private finishLoginState(): void {
     this.authService.login();
     this.contextAction = ContextAction.SpeachStart;
     this.contextState = ContextState.SpeachStart;
   }
 
-  private performSpeachStart(): void {
+  private finishSpeachStartState(): void {
     this.contextAction = ContextAction.SpeakerInSpeach;
     this.contextState = ContextState.SpeakerInSpeach;
   }
 
-  private performSpeachStop(): void {
+  private finishSpeachStopState(): void {
     this.contextAction = ContextAction.SpeachStart;
     this.contextState = ContextState.SpeachStart;
   }

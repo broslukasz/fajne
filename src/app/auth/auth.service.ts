@@ -18,8 +18,8 @@ export class AuthService {
   }
 
   login(): void {
-    this.afAuth.auth.signInWithPopup(new firebase.auth.EmailAuthProvider())
-      .then(() => console.log('user logged in'))
+    this.afAuth.auth.signInAnonymously()
+      .then((credentials) => console.log('user logged with temporary credentials', credentials))
       .catch(error => console.log('auth error', error));
   }
 
