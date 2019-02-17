@@ -18,7 +18,7 @@ export class AuthService {
   }
 
   login(): void {
-    this.afAuth.auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
+    this.afAuth.auth.signInWithPopup(new firebase.auth.EmailAuthProvider())
       .then(() => console.log('user logged in'))
       .catch(error => console.log('auth error', error));
   }

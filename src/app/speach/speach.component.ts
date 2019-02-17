@@ -4,6 +4,7 @@ import { combineLatest, Observable } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 import { ContextState } from '../enums/context-state.enum';
 import { ContextAction } from '../enums/context-action.enum';
+import { log } from 'util';
 
 @Component({
   selector: 'app-speach',
@@ -27,7 +28,8 @@ export class SpeachComponent implements OnInit {
 
     combineLatest(this.connected, this.authService.user$)
       .subscribe(([connected, authState]: [boolean, any]) => {
-
+        log('connected', connected)
+        log('authState', authState)
       })
   }
 
@@ -59,6 +61,7 @@ export class SpeachComponent implements OnInit {
   }
 
   private performLogin(): void {
+    this.authService.login();
     this.contextAction = ContextAction.SpeachStart;
     this.contextState = ContextState.SpeachStart;
   }
