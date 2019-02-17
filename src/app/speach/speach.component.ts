@@ -37,19 +37,19 @@ export class SpeachComponent implements OnInit {
   public performContextAction(): void {
     switch(this.contextState) {
       case ContextState.LoginView:
-        this.finishLoginState();
+        this.loginAction();
         break;
 
       case ContextState.SpeachStart:
-        this.finishSpeachStartState();
+        this.speachStartAction();
         break;
 
       case ContextState.SpeakerInSpeach:
-        this.finishSpeachStopState();
+        this.speakerInSpeachAction();
         break;
 
       case ContextState.ParticipantInSpeach:
-        this.makeSpeachCool();
+        this.participantInSpeachAction();
         break;
       default:
       throw new Error('Unrecognized action');
@@ -59,27 +59,27 @@ export class SpeachComponent implements OnInit {
   private initializeContextState(): void {
     this.authService.login();
     this.buttonContextClass = ButtonContextClass.SpeachStart;
-    this.finishLoginState();
+    this.loginAction();
   }
 
-  private finishLoginState(): void {
+  private loginAction(): void {
     this.contextAction = ContextAction.SpeachStart;
     this.contextState = ContextState.SpeachStart;
   }
 
-  private finishSpeachStartState(): void {
+  private speachStartAction(): void {
     this.contextAction = ContextAction.SpeakerInSpeach;
     this.contextState = ContextState.SpeakerInSpeach;
     this.buttonContextClass = ButtonContextClass.SpeakerInSpeach;
   }
 
-  private finishSpeachStopState(): void {
+  private speakerInSpeachAction(): void {
     this.contextAction = ContextAction.SpeachStart;
     this.contextState = ContextState.SpeachStart;
     this.buttonContextClass = ButtonContextClass.SpeachStart;
   }
 
-  private makeSpeachCool(): void {
+  private participantInSpeachAction(): void {
 
   }
 }
