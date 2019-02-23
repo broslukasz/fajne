@@ -1,22 +1,20 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
 import { FirabaseStateCommunicationService } from './core/firabase-state-communication.service';
+import { AppStateComponent } from './core/app-state/app-state.component';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent implements OnInit {
+export class AppComponent extends AppStateComponent implements OnInit {
   constructor(
-    private firabaseStateCommunicationService: FirabaseStateCommunicationService
-    ) {}
+    public firabaseStateCommunicationService: FirabaseStateCommunicationService
+  ) {
+    super(firabaseStateCommunicationService);
+  }
 
   public ngOnInit(): void {
     this.firabaseStateCommunicationService.initializaFirebaseStete();
-  }
-
-  public get connected(): Observable<boolean> {
-    return this.firabaseStateCommunicationService.connected;
   }
 }

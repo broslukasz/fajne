@@ -7,14 +7,15 @@ import { ContextAction } from '../enums/context-action.enum';
 import { ButtonContextClass } from '../enums/button-context-class.enum';
 import * as firebase from 'firebase/app';
 import { FirebaseObject } from '../enums/firebase-object';
+import { AppStateComponent } from '../core/app-state/app-state.component';
+import { FirabaseStateCommunicationService } from '../core/firabase-state-communication.service';
 
 @Component({
   selector: 'app-speach',
   templateUrl: './speach.component.html',
   styleUrls: ['./speach.component.scss']
 })
-export class SpeachComponent implements OnInit, OnDestroy {
-  private connected: Observable<boolean | null>;
+export class SpeachComponent extends AppStateComponent implements OnInit, OnDestroy {
   private speachRunning: Observable<boolean | null>;
   private currentSpeaker: Observable<string | null>;
   private remoteFajneCounter: Observable<number | null>;
@@ -25,14 +26,16 @@ export class SpeachComponent implements OnInit, OnDestroy {
 
   constructor(
     private db: AngularFireDatabase,
-    public authService: AuthService
-  ) { }
+    public authService: AuthService,
+    public firabaseStateCommunicationService: FirabaseStateCommunicationService
+  ) {
+    super(firabaseStateCommunicationService)
+  }
 
   ngOnInit() {
     this.initializeContextState();
     this.db.database.ref('speach-running').onDisconnect().set(false);
 
-    this.connected = this.db.object<boolean>(FirebaseObject.connected).valueChanges();
     this.speachRunning = this.db.object<boolean>(FirebaseObject.speachRunning).valueChanges();
     this.currentSpeaker = this.db.object<string>(FirebaseObject.currentSpeaker).valueChanges();
     this.remoteFajneCounter = this.db.object<number>(FirebaseObject.fajneCounter).valueChanges();
