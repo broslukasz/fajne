@@ -6,5 +6,11 @@
 }
 
 header {
+    display: flex;
     text-align: center;
+    height: 10vh;
+}
+
+mat-card {
+  width: 100%;
 }

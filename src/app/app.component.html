@@ -1,6 +1,6 @@
 <header>
   <mat-card>
-    This app is connected: {{ connected | async }}
+    <span *ngIf="!(connected | async)">Waiting for connection</span>
   </mat-card>
 </header>
 
