@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { FirabaseStateCommunicationService } from '../firabase-state-communication.service';
 
 @Component({
@@ -16,8 +16,12 @@ export class AppStateComponent implements OnInit {
   ngOnInit() {
   }
 
-  public get connected(): Observable<boolean> {
+  public get connected(): BehaviorSubject<boolean> {
     return this.firabaseStateCommunicationService.connected;
+  }
+
+  public get actionCounter(): BehaviorSubject<number> {
+    return this.firabaseStateCommunicationService.actionCounter;
   }
 
 }

@@ -18,7 +18,6 @@ import { FirabaseStateCommunicationService } from '../core/firabase-state-commun
 export class SpeachComponent extends AppStateComponent implements OnInit, OnDestroy {
   private speachRunning: Observable<boolean | null>;
   private currentSpeaker: Observable<string | null>;
-  private remoteFajneCounter: Observable<number | null>;
 
   public contextAction: ContextAction;
   public contextState: ContextState;
@@ -29,16 +28,15 @@ export class SpeachComponent extends AppStateComponent implements OnInit, OnDest
     public authService: AuthService,
     public firabaseStateCommunicationService: FirabaseStateCommunicationService
   ) {
-    super(firabaseStateCommunicationService)
+    super(firabaseStateCommunicationService);
   }
 
   ngOnInit() {
     this.initializeContextState();
-    this.db.database.ref('speach-running').onDisconnect().set(false);
+    this.db.database.ref(FirebaseObject.speachRunning).onDisconnect().set(false);
 
     this.speachRunning = this.db.object<boolean>(FirebaseObject.speachRunning).valueChanges();
     this.currentSpeaker = this.db.object<string>(FirebaseObject.currentSpeaker).valueChanges();
-    this.remoteFajneCounter = this.db.object<number>(FirebaseObject.fajneCounter).valueChanges();
 
     combineLatest(this.speachRunning, this.currentSpeaker)
       .subscribe(([speachRunning, currentSpeaker]: [boolean, string]) => {
@@ -51,7 +49,7 @@ export class SpeachComponent extends AppStateComponent implements OnInit, OnDest
   }
 
   public performContextAction(): void {
-    switch(this.contextState) {
+    switch (this.contextState) {
       case ContextState.LoginView:
         this.loginAction();
         break;
@@ -128,6 +126,7 @@ export class SpeachComponent extends AppStateComponent implements OnInit, OnDest
   }
 
   private incrementSpeachFeature(): void {
-    this.db.object<number>(FirebaseObject.fajneCounter).set(1);
+    let currentActionCounterValue: number = this.actionCounter.getValue();
+    this.db.object<number>(FirebaseObject.fajneCounter).set(++currentActionCounterValue);
   }
 }

@@ -1,5 +1,5 @@
 export enum FirebaseObject {
-  connected = 'fajne-counter',
+  connected = 'connected',
   speachRunning = 'speach-running',
   currentSpeaker = 'current-speaker',
   fajneCounter = 'fajne-counter',
