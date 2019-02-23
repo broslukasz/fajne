@@ -10,8 +10,7 @@ import { AuthService } from '../auth/auth.service';
 describe('SpeachComponent', () => {
   let component: SpeachComponent;
   let fixture: ComponentFixture<SpeachComponent>;
-  let angularFireDatabase: AngularFireDatabase;
-  let angularFireDatabaseMock: AngularFireDatabase = mock(AngularFireDatabase);
+  const angularFireDatabaseMock: AngularFireDatabase = mock(AngularFireDatabase);
 
   when(angularFireDatabaseMock.object(anything())).thenReturn(
     <any>{
@@ -34,7 +33,6 @@ describe('SpeachComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(SpeachComponent);
     component = fixture.componentInstance;
-    angularFireDatabase = TestBed.get(AngularFireDatabase);
   });
 
   it('should create', () => {
