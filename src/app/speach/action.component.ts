@@ -11,7 +11,7 @@ import { AppStateComponent } from '../core/app-state/app-state.component';
 import { FirabaseStateCommunicationService } from '../core/firabase-state-communication.service';
 
 @Component({
-  selector: 'fajne-action',
+  selector: 'app-action',
   templateUrl: './action.component.html',
   styleUrls: ['./action.component.scss']
 })
