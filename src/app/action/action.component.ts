@@ -21,6 +21,7 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
   public nextContextAction: ContextAction;
   public currentContextState: ContextState;
   public buttonContextClass: ButtonContextClass;
+  private readonly resultAppearanceTime: number = 3000;
 
   constructor(
     private db: AngularFireDatabase,
@@ -87,25 +88,38 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
     this.buttonContextClass = ButtonContextClass.ParticipantInAction;
   }
 
-  private performerStopedAction(): void {
+  private goToActionStartState(): void {
     this.nextContextAction = ContextAction.ActionStart;
     this.currentContextState = ContextState.ActionStart;
     this.buttonContextClass = ButtonContextClass.ActionStart;
   }
 
-  private changeContext(speachRunning: boolean, currentSpeaker: string): void {
-    if (this.itWasMeWhoStartedAction(speachRunning, currentSpeaker)) {
-      this.startActionAsPerformer();
-      return;
-    }
+  private showMeTheResult() {
+    this.firabaseStateCommunicationService.isResultAvailable$.next(true);
+    this.db.object<number>(FirebaseObject.ActionCounter).set(0);
+  }
 
+  private changeContext(speachRunning: boolean, currentSpeaker: string): void {
     if (this.someoneElseStartedAction(speachRunning, currentSpeaker)) {
       this.enableVotingForParticipant();
       return;
     }
 
-    if (!speachRunning) {
-      this.performerStopedAction();
+    if (this.itWasMeWhoStartedAction(speachRunning, currentSpeaker)) {
+      this.startActionAsPerformer();
+      return;
+    }
+
+    if (this.someoneElseFinishedTheAction(speachRunning, currentSpeaker)) {
+      this.goToActionStartState();
+      return;
+    }
+
+    if (this.itWasMeWhoFinishedTheAction(speachRunning, currentSpeaker)) {
+      this.goToActionStartState();
+      this.showMeTheResult();
+      this.setTimerForResultDisplay();
+      return;
     }
   }
 
@@ -115,6 +129,14 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
 
   private someoneElseStartedAction(speachRunning: boolean, currentSpeaker: string) {
     return speachRunning && currentSpeaker !== this.authService.userUid;
+  }
+
+  private itWasMeWhoFinishedTheAction(speachRunning: boolean, currentSpeaker: string): boolean {
+    return !speachRunning && currentSpeaker === this.authService.userUid;
+  }
+
+  private someoneElseFinishedTheAction(speachRunning: boolean, currentSpeaker: string): boolean {
+    return !speachRunning && currentSpeaker !== this.authService.userUid;
   }
 
   private incrementSpeachFeature(): void {
@@ -130,5 +152,11 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
       .subscribe(([speachRunning, currentSpeaker]: [boolean, string]) => {
         this.changeContext(speachRunning, currentSpeaker);
       });
+  }
+
+  private setTimerForResultDisplay(): void {
+    setTimeout(() => {
+      this.firabaseStateCommunicationService.isResultAvailable$.next(false);
+    }, this.resultAppearanceTime);
   }
 }

@@ -1,6 +1,7 @@
 <header>
   <mat-card>
     <span *ngIf="!(connected | async)">Waiting for connection</span>
+    <span *ngIf="isResultAvailable">You got {{ result }}</span>
   </mat-card>
 </header>
 
