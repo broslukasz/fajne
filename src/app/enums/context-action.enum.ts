@@ -1,6 +1,6 @@
 export enum ContextAction {
   LoginView = 'Login',
   ActionStart = 'Start',
-  ParticipantInAction = 'Fajne',
-  PerformerInAction = 'Stop',
+  ActionForParticipant = 'Fajne',
+  ActionForPerformer = 'Stop',
 }

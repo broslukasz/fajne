@@ -18,8 +18,8 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
   private actionRunning: Observable<boolean | null>;
   private currentPerformer: Observable<string | null>;
 
-  public contextAction: ContextAction;
-  public contextState: ContextState;
+  public nextContextAction: ContextAction;
+  public currentContextState: ContextState;
   public buttonContextClass: ButtonContextClass;
 
   constructor(
@@ -41,7 +41,7 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
   }
 
   public performContextAction(): void {
-    switch (this.contextState) {
+    switch (this.currentContextState) {
       case ContextState.LoginView:
         this.loginAction();
         break;
@@ -71,39 +71,41 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
   }
 
   private loginAction(): void {
-    this.contextAction = ContextAction.ActionStart;
-    this.contextState = ContextState.ActionStart;
+    this.nextContextAction = ContextAction.ActionStart;
+    this.currentContextState = ContextState.ActionStart;
   }
 
   private startActionAsPerformer(): void {
-    this.contextAction = ContextAction.PerformerInAction;
-    this.contextState = ContextState.PerformerInAction;
+    this.nextContextAction = ContextAction.ActionForPerformer;
+    this.currentContextState = ContextState.PerformerInAction;
     this.buttonContextClass = ButtonContextClass.PerformerInAction;
   }
 
   private enableVotingForParticipant(): void {
-    this.contextAction = ContextAction.ParticipantInAction;
-    this.contextState = ContextState.ParticipantInAction;
+    this.nextContextAction = ContextAction.ActionForParticipant;
+    this.currentContextState = ContextState.ParticipantInAction;
     this.buttonContextClass = ButtonContextClass.ParticipantInAction;
   }
 
-  private performerStopsAction(): void {
-    this.contextAction = ContextAction.ActionStart;
-    this.contextState = ContextState.ActionStart;
+  private performerStopedAction(): void {
+    this.nextContextAction = ContextAction.ActionStart;
+    this.currentContextState = ContextState.ActionStart;
     this.buttonContextClass = ButtonContextClass.ActionStart;
   }
 
   private changeContext(speachRunning: boolean, currentSpeaker: string): void {
     if (this.itWasMeWhoStartedAction(speachRunning, currentSpeaker)) {
       this.startActionAsPerformer();
+      return;
     }
 
     if (this.someoneElseStartedAction(speachRunning, currentSpeaker)) {
       this.enableVotingForParticipant();
+      return;
     }
 
     if (!speachRunning) {
-      this.performerStopsAction();
+      this.performerStopedAction();
     }
   }
 
