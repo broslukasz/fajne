@@ -1,6 +1,6 @@
 export enum FirebaseObject {
   Connected = 'connected',
-  ActionRunning = 'speach-running',
-  CurrentPerformer = 'current-speaker',
-  ActionCounter = 'fajne-counter',
+  ActionRunning = 'action-running',
+  CurrentPerformer = 'current-performer',
+  ActionCounter = 'action-counter',
 }
