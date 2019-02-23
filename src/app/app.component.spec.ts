@@ -2,8 +2,8 @@ import { TestBed, async } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { AppComponent } from './app.component';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { AngularFireDatabase } from '@angular/fire/database';
 import { instance, mock } from 'ts-mockito';
+import { FirabaseStateCommunicationService } from './core/firabase-state-communication.service';
 
 describe('AppComponent', () => {
   beforeEach(async(() => {
@@ -12,7 +12,7 @@ describe('AppComponent', () => {
         RouterTestingModule
       ],
       providers: [
-        {provide: AngularFireDatabase, useValue: instance(mock(AngularFireDatabase))}
+        {provide: FirabaseStateCommunicationService, useValue: instance(mock(FirabaseStateCommunicationService))}
       ],
       declarations: [
         AppComponent

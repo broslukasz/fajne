@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { AngularFireDatabase } from '@angular/fire/database';
 import { Observable } from 'rxjs';
+import { FirabaseStateCommunicationService } from './core/firabase-state-communication.service';
 
 @Component({
   selector: 'app-root',
@@ -8,11 +8,15 @@ import { Observable } from 'rxjs';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-  connected: Observable<boolean>;
-
-  constructor(private db: AngularFireDatabase) {}
+  constructor(
+    private firabaseStateCommunicationService: FirabaseStateCommunicationService
+    ) {}
 
   public ngOnInit(): void {
-    this.connected = this.db.object<boolean>('connected').valueChanges();
+    this.firabaseStateCommunicationService.initializaFirebaseStete();
+  }
+
+  public get connected(): Observable<boolean> {
+    return this.firabaseStateCommunicationService.connected;
   }
 }
