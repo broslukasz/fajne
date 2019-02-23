@@ -16,8 +16,8 @@ import { FirabaseStateCommunicationService } from '../core/firabase-state-commun
   styleUrls: ['./action.component.scss']
 })
 export class ActionComponent extends AppStateComponent implements OnInit, OnDestroy {
-  private speachRunning: Observable<boolean | null>;
-  private currentSpeaker: Observable<string | null>;
+  private actionRunning: Observable<boolean | null>;
+  private currentPerformer: Observable<string | null>;
 
   public contextAction: ContextAction;
   public contextState: ContextState;
@@ -32,16 +32,9 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
   }
 
   ngOnInit() {
-    this.initializeContextState();
     this.db.database.ref(FirebaseObject.ActionRunning).onDisconnect().set(false);
-
-    this.speachRunning = this.db.object<boolean>(FirebaseObject.ActionRunning).valueChanges();
-    this.currentSpeaker = this.db.object<string>(FirebaseObject.CurrentPerformer).valueChanges();
-
-    combineLatest(this.speachRunning, this.currentSpeaker)
-      .subscribe(([speachRunning, currentSpeaker]: [boolean, string]) => {
-        this.performContextTransition(speachRunning, currentSpeaker);
-      });
+    this.initializeContextState();
+    this.watchForContextChanges();
   }
 
   public ngOnDestroy(): void {
@@ -85,13 +78,13 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
     this.contextState = ContextState.ActionStart;
   }
 
-  private startAction(): void {
+  private startActionAsPerformer(): void {
     this.contextAction = ContextAction.PerformerInAction;
     this.contextState = ContextState.PerformerInAction;
     this.buttonContextClass = ButtonContextClass.PerformerInAction;
   }
 
-  private setStateAsParticipant(): void {
+  private enableVotingForParticipant(): void {
     this.contextAction = ContextAction.ParticipantInAction;
     this.contextState = ContextState.ParticipantInAction;
     this.buttonContextClass = ButtonContextClass.ParticipantInAction;
@@ -103,13 +96,13 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
     this.buttonContextClass = ButtonContextClass.ActionStart;
   }
 
-  private performContextTransition(speachRunning: boolean, currentSpeaker: string): void {
-    if (this.iAmThePerformer(speachRunning, currentSpeaker)) {
-      this.startAction();
+  private changeContext(speachRunning: boolean, currentSpeaker: string): void {
+    if (this.itWasMeWhoStartedAction(speachRunning, currentSpeaker)) {
+      this.startActionAsPerformer();
     }
 
-    if (this.iAmTheParticipant(speachRunning, currentSpeaker)) {
-      this.setStateAsParticipant();
+    if (this.someoneElseStartedAction(speachRunning, currentSpeaker)) {
+      this.enableVotingForParticipant();
     }
 
     if (!speachRunning) {
@@ -117,16 +110,26 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
     }
   }
 
-  private iAmThePerformer(speachRunning: boolean, currentSpeaker: string): boolean {
+  private itWasMeWhoStartedAction(speachRunning: boolean, currentSpeaker: string): boolean {
     return speachRunning && currentSpeaker === this.authService.userUid;
   }
 
-  private iAmTheParticipant(speachRunning: boolean, currentSpeaker: string) {
+  private someoneElseStartedAction(speachRunning: boolean, currentSpeaker: string) {
     return speachRunning && currentSpeaker !== this.authService.userUid;
   }
 
   private incrementSpeachFeature(): void {
     let currentActionCounterValue: number = this.actionCounter.getValue();
     this.db.object<number>(FirebaseObject.ActionCounter).set(++currentActionCounterValue);
+  }
+
+  private watchForContextChanges(): void {
+    this.actionRunning = this.db.object<boolean>(FirebaseObject.ActionRunning).valueChanges();
+    this.currentPerformer = this.db.object<string>(FirebaseObject.CurrentPerformer).valueChanges();
+
+    combineLatest(this.actionRunning, this.currentPerformer)
+      .subscribe(([speachRunning, currentSpeaker]: [boolean, string]) => {
+        this.changeContext(speachRunning, currentSpeaker);
+      });
   }
 }
