@@ -17,11 +17,11 @@ export class AppStateComponent implements OnInit {
   }
 
   public get connected(): BehaviorSubject<boolean> {
-    return this.firabaseStateCommunicationService.connected;
+    return this.firabaseStateCommunicationService.connected$;
   }
 
   public get actionCounter(): BehaviorSubject<number> {
-    return this.firabaseStateCommunicationService.actionCounter;
+    return this.firabaseStateCommunicationService.actionCounter$;
   }
 
 }

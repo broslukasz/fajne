@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { ActionComponent } from './speach/action.component';
+import { ActionComponent } from './action/action.component';
 
 const appRoutes: Routes = [
   {path: '', component: ActionComponent},

@@ -5,7 +5,6 @@ import { AuthService } from '../auth/auth.service';
 import { ContextState } from '../enums/context-state.enum';
 import { ContextAction } from '../enums/context-action.enum';
 import { ButtonContextClass } from '../enums/button-context-class.enum';
-import * as firebase from 'firebase/app';
 import { FirebaseObject } from '../enums/firebase-object';
 import { AppStateComponent } from '../core/app-state/app-state.component';
 import { FirabaseStateCommunicationService } from '../core/firabase-state-communication.service';
@@ -48,10 +47,8 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
         break;
 
       case ContextState.ActionStart:
-        this.authService.user$.subscribe((user: firebase.User) => {
-          this.db.object<boolean>(FirebaseObject.ActionRunning).set(true);
-          this.db.object<string>(FirebaseObject.CurrentPerformer).set(user.uid);
-        });
+        this.db.object<boolean>(FirebaseObject.ActionRunning).set(true);
+        this.db.object<string>(FirebaseObject.CurrentPerformer).set(this.authService.user$.getValue().uid);
         break;
 
       case ContextState.PerformerInAction:

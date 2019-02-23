@@ -7,8 +7,8 @@ import { FirebaseObject } from '../enums/firebase-object';
   providedIn: 'root'
 })
 export class FirabaseStateCommunicationService {
-  public connected: BehaviorSubject<boolean> = new BehaviorSubject(false);
-  public actionCounter: BehaviorSubject<number> = new BehaviorSubject(0);
+  public connected$: BehaviorSubject<boolean> = new BehaviorSubject(false);
+  public actionCounter$: BehaviorSubject<number> = new BehaviorSubject(0);
 
   constructor(
     private db: AngularFireDatabase
@@ -16,11 +16,11 @@ export class FirabaseStateCommunicationService {
 
   public initializaFirebaseStete(): void {
     this.db.object<boolean>(FirebaseObject.Connected).valueChanges().subscribe((connected: boolean) => {
-      this.connected.next(connected);
+      this.connected$.next(connected);
     });
 
     this.db.object<number>(FirebaseObject.ActionCounter).valueChanges().subscribe((counterValue: number) => {
-      this.actionCounter.next(counterValue);
+      this.actionCounter$.next(counterValue);
     });
   }
 }

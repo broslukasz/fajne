@@ -1,21 +1,23 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { AngularFireAuth } from '@angular/fire/auth';
-import { Observable } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import * as firebase from 'firebase/app';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  public user$: Observable<firebase.User | null>;
+  public user$: BehaviorSubject<firebase.User | null> = new BehaviorSubject(null);
   public userUid: string;
 
   constructor(
     private router: Router,
     private afAuth: AngularFireAuth
   ) {
-    this.user$ = this.afAuth.authState;
+    this.afAuth.authState.subscribe((firebaseUser: firebase.User) => {
+      this.user$.next(firebaseUser);
+    });
   }
 
   login(): void {
