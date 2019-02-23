@@ -1,7 +1,6 @@
 export enum ButtonContextClass {
   LoginView = 'login-view',
-  SpeachStart = 'speach-start',
-  ParticipantInSpeach = 'participant-in-speach',
-  SpeakerInSpeach = 'speaker-in-speach'
-
+  ActionStart = 'action-start',
+  ParticipantInAction = 'participant-in-action',
+  PerformerInAction = 'performer-in-action'
 }

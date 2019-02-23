@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { SpeachComponent } from './speach/speach.component';
+import { ActionComponent } from './speach/action.component';
 
 const appRoutes: Routes = [
-  {path: '', component: SpeachComponent},
+  {path: '', component: ActionComponent},
 ];
 
 @NgModule({

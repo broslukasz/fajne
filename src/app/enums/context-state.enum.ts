@@ -1,6 +1,6 @@
 export enum ContextState {
   LoginView,
-  SpeachStart,
-  ParticipantInSpeach,
-  SpeakerInSpeach
+  ActionStart,
+  ParticipantInAction,
+  PerformerInAction
 }

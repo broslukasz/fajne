@@ -15,11 +15,11 @@ export class FirabaseStateCommunicationService {
   ) { }
 
   public initializaFirebaseStete(): void {
-    this.db.object<boolean>(FirebaseObject.connected).valueChanges().subscribe((connected: boolean) => {
+    this.db.object<boolean>(FirebaseObject.Connected).valueChanges().subscribe((connected: boolean) => {
       this.connected.next(connected);
     });
 
-    this.db.object<number>(FirebaseObject.fajneCounter).valueChanges().subscribe((counterValue: number) => {
+    this.db.object<number>(FirebaseObject.ActionCounter).valueChanges().subscribe((counterValue: number) => {
       this.actionCounter.next(counterValue);
     });
   }

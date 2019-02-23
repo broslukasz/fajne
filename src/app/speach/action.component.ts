@@ -11,11 +11,11 @@ import { AppStateComponent } from '../core/app-state/app-state.component';
 import { FirabaseStateCommunicationService } from '../core/firabase-state-communication.service';
 
 @Component({
-  selector: 'app-speach',
-  templateUrl: './speach.component.html',
-  styleUrls: ['./speach.component.scss']
+  selector: 'fajne-action',
+  templateUrl: './action.component.html',
+  styleUrls: ['./action.component.scss']
 })
-export class SpeachComponent extends AppStateComponent implements OnInit, OnDestroy {
+export class ActionComponent extends AppStateComponent implements OnInit, OnDestroy {
   private speachRunning: Observable<boolean | null>;
   private currentSpeaker: Observable<string | null>;
 
@@ -33,10 +33,10 @@ export class SpeachComponent extends AppStateComponent implements OnInit, OnDest
 
   ngOnInit() {
     this.initializeContextState();
-    this.db.database.ref(FirebaseObject.speachRunning).onDisconnect().set(false);
+    this.db.database.ref(FirebaseObject.ActionRunning).onDisconnect().set(false);
 
-    this.speachRunning = this.db.object<boolean>(FirebaseObject.speachRunning).valueChanges();
-    this.currentSpeaker = this.db.object<string>(FirebaseObject.currentSpeaker).valueChanges();
+    this.speachRunning = this.db.object<boolean>(FirebaseObject.ActionRunning).valueChanges();
+    this.currentSpeaker = this.db.object<string>(FirebaseObject.CurrentPerformer).valueChanges();
 
     combineLatest(this.speachRunning, this.currentSpeaker)
       .subscribe(([speachRunning, currentSpeaker]: [boolean, string]) => {
@@ -54,19 +54,19 @@ export class SpeachComponent extends AppStateComponent implements OnInit, OnDest
         this.loginAction();
         break;
 
-      case ContextState.SpeachStart:
+      case ContextState.ActionStart:
         this.authService.user$.subscribe((user: firebase.User) => {
-          this.db.object<boolean>(FirebaseObject.speachRunning).set(true);
-          this.db.object<string>(FirebaseObject.currentSpeaker).set(user.uid);
+          this.db.object<boolean>(FirebaseObject.ActionRunning).set(true);
+          this.db.object<string>(FirebaseObject.CurrentPerformer).set(user.uid);
         });
         break;
 
-      case ContextState.SpeakerInSpeach:
-        this.db.object<boolean>(FirebaseObject.speachRunning).set(false);
-        this.db.object<string>(FirebaseObject.currentSpeaker).set(null);
+      case ContextState.PerformerInAction:
+        this.db.object<boolean>(FirebaseObject.ActionRunning).set(false);
+        this.db.object<string>(FirebaseObject.CurrentPerformer).set(null);
         break;
 
-      case ContextState.ParticipantInSpeach:
+      case ContextState.ParticipantInAction:
         this.incrementSpeachFeature();
         break;
       default:
@@ -76,48 +76,48 @@ export class SpeachComponent extends AppStateComponent implements OnInit, OnDest
 
   private initializeContextState(): void {
     this.authService.login();
-    this.buttonContextClass = ButtonContextClass.SpeachStart;
+    this.buttonContextClass = ButtonContextClass.ActionStart;
     this.loginAction();
   }
 
   private loginAction(): void {
-    this.contextAction = ContextAction.SpeachStart;
-    this.contextState = ContextState.SpeachStart;
+    this.contextAction = ContextAction.ActionStart;
+    this.contextState = ContextState.ActionStart;
   }
 
-  private speachStartAction(): void {
-    this.contextAction = ContextAction.SpeakerInSpeach;
-    this.contextState = ContextState.SpeakerInSpeach;
-    this.buttonContextClass = ButtonContextClass.SpeakerInSpeach;
+  private startAction(): void {
+    this.contextAction = ContextAction.PerformerInAction;
+    this.contextState = ContextState.PerformerInAction;
+    this.buttonContextClass = ButtonContextClass.PerformerInAction;
   }
 
-  private setStateAsParticipantAction(): void {
-    this.contextAction = ContextAction.ParticipantInSpeach;
-    this.contextState = ContextState.ParticipantInSpeach;
-    this.buttonContextClass = ButtonContextClass.ParticipantInSpeach;
+  private setStateAsParticipant(): void {
+    this.contextAction = ContextAction.ParticipantInAction;
+    this.contextState = ContextState.ParticipantInAction;
+    this.buttonContextClass = ButtonContextClass.ParticipantInAction;
   }
 
-  private speakerStopsSpeachAction(): void {
-    this.contextAction = ContextAction.SpeachStart;
-    this.contextState = ContextState.SpeachStart;
-    this.buttonContextClass = ButtonContextClass.SpeachStart;
+  private performerStopsAction(): void {
+    this.contextAction = ContextAction.ActionStart;
+    this.contextState = ContextState.ActionStart;
+    this.buttonContextClass = ButtonContextClass.ActionStart;
   }
 
   private performContextTransition(speachRunning: boolean, currentSpeaker: string): void {
-    if (this.iAmTheSpeaker(speachRunning, currentSpeaker)) {
-      this.speachStartAction();
+    if (this.iAmThePerformer(speachRunning, currentSpeaker)) {
+      this.startAction();
     }
 
     if (this.iAmTheParticipant(speachRunning, currentSpeaker)) {
-      this.setStateAsParticipantAction();
+      this.setStateAsParticipant();
     }
 
     if (!speachRunning) {
-      this.speakerStopsSpeachAction();
+      this.performerStopsAction();
     }
   }
 
-  private iAmTheSpeaker(speachRunning: boolean, currentSpeaker: string): boolean {
+  private iAmThePerformer(speachRunning: boolean, currentSpeaker: string): boolean {
     return speachRunning && currentSpeaker === this.authService.userUid;
   }
 
@@ -127,6 +127,6 @@ export class SpeachComponent extends AppStateComponent implements OnInit, OnDest
 
   private incrementSpeachFeature(): void {
     let currentActionCounterValue: number = this.actionCounter.getValue();
-    this.db.object<number>(FirebaseObject.fajneCounter).set(++currentActionCounterValue);
+    this.db.object<number>(FirebaseObject.ActionCounter).set(++currentActionCounterValue);
   }
 }
