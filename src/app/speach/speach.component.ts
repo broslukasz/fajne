@@ -6,6 +6,7 @@ import { ContextState } from '../enums/context-state.enum';
 import { ContextAction } from '../enums/context-action.enum';
 import { ButtonContextClass } from '../enums/button-context-class.enum';
 import * as firebase from 'firebase/app';
+import { FirebaseObject } from '../enums/firebase-object';
 
 @Component({
   selector: 'app-speach',
@@ -16,6 +17,7 @@ export class SpeachComponent implements OnInit, OnDestroy {
   private connected: Observable<boolean | null>;
   private speachRunning: Observable<boolean | null>;
   private currentSpeaker: Observable<string | null>;
+  private remoteFajneCounter: Observable<number | null>;
 
   public contextAction: ContextAction;
   public contextState: ContextState;
@@ -30,9 +32,10 @@ export class SpeachComponent implements OnInit, OnDestroy {
     this.initializeContextState();
     this.db.database.ref('speach-running').onDisconnect().set(false);
 
-    this.connected = this.db.object<boolean>('connected').valueChanges();
-    this.speachRunning = this.db.object<boolean>('speach-running').valueChanges();
-    this.currentSpeaker = this.db.object<string>('current-speaker').valueChanges();
+    this.connected = this.db.object<boolean>(FirebaseObject.connected).valueChanges();
+    this.speachRunning = this.db.object<boolean>(FirebaseObject.speachRunning).valueChanges();
+    this.currentSpeaker = this.db.object<string>(FirebaseObject.currentSpeaker).valueChanges();
+    this.remoteFajneCounter = this.db.object<number>(FirebaseObject.fajneCounter).valueChanges();
 
     combineLatest(this.speachRunning, this.currentSpeaker)
       .subscribe(([speachRunning, currentSpeaker]: [boolean, string]) => {
@@ -52,18 +55,18 @@ export class SpeachComponent implements OnInit, OnDestroy {
 
       case ContextState.SpeachStart:
         this.authService.user$.subscribe((user: firebase.User) => {
-          this.db.object<boolean>('speach-running').set(true);
-          this.db.object<string>('current-speaker').set(user.uid);
+          this.db.object<boolean>(FirebaseObject.speachRunning).set(true);
+          this.db.object<string>(FirebaseObject.currentSpeaker).set(user.uid);
         });
         break;
 
       case ContextState.SpeakerInSpeach:
-        this.db.object<boolean>('speach-running').set(false);
-        this.db.object<string>('current-speaker').set(null);
+        this.db.object<boolean>(FirebaseObject.speachRunning).set(false);
+        this.db.object<string>(FirebaseObject.currentSpeaker).set(null);
         break;
 
       case ContextState.ParticipantInSpeach:
-        this.markSpeachAsCool();
+        this.incrementSpeachFeature();
         break;
       default:
       throw new Error('Unrecognized action');
@@ -121,7 +124,7 @@ export class SpeachComponent implements OnInit, OnDestroy {
     return speachRunning && currentSpeaker !== this.authService.userUid;
   }
 
-  private markSpeachAsCool(): void {
-    this.db.object<boolean>('coolness-counter').update(true);
+  private incrementSpeachFeature(): void {
+    this.db.object<number>(FirebaseObject.fajneCounter).set(1);
   }
 }
