@@ -66,9 +66,14 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
   }
 
   private initializeContextState(): void {
-    this.authService.login();
-    this.buttonContextClass = ButtonContextClass.ActionStart;
-    this.loginAction();
+    this.connected.subscribe((connected: boolean) => {
+      if (!connected) {
+        this.setWaitForConnectionState();
+        return;
+      }
+
+      this.authService.login();
+    });
   }
 
   private loginAction(): void {
@@ -92,6 +97,12 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
     this.nextContextAction = ContextAction.ActionStart;
     this.currentContextState = ContextState.ActionStart;
     this.buttonContextClass = ButtonContextClass.ActionStart;
+  }
+
+  private setWaitForConnectionState(): void {
+    this.nextContextAction = ContextAction.WaitForConnection;
+    this.currentContextState = ContextState.WaitForConnection;
+    this.buttonContextClass = ButtonContextClass.WaitForConnection;
   }
 
   private showMeTheResult() {
