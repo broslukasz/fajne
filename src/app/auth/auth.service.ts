@@ -14,16 +14,13 @@ export class AuthService {
   constructor(
     private router: Router,
     private afAuth: AngularFireAuth
-  ) {
-    this.afAuth.authState.subscribe((firebaseUser: firebase.User) => {
-      this.user$.next(firebaseUser);
-    });
-  }
+  ) { }
 
   login(): void {
     this.afAuth.auth.signInAnonymously()
       .then((credentials) => {
         this.userUid = credentials.user.uid;
+        this.user$.next(credentials.user);
       })
       .catch(error => console.log('auth error', error));
   }

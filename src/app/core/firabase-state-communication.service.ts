@@ -15,7 +15,7 @@ export class FirabaseStateCommunicationService {
     private db: AngularFireDatabase
   ) { }
 
-  public initializaFirebaseStete(): void {
+  public initializaFirebaseState(): void {
     this.db.object<boolean>(FirebaseObject.Connected).valueChanges().subscribe((connected: boolean) => {
       this.connected$.next(connected);
     });

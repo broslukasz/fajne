@@ -12,4 +12,4 @@ import { SharedModule } from '../shared/shared.module';
     SharedModule
   ]
 })
-export class SpeachModule { }
+export class ActionModule { }

@@ -5,7 +5,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { CoreModule } from './core/core.module';
 import { SharedModule } from './shared/shared.module';
-import { SpeachModule } from './action/speach.module';
+import { ActionModule } from './action/action.module';
 
 @NgModule({
   declarations: [
@@ -16,7 +16,7 @@ import { SpeachModule } from './action/speach.module';
     AppRoutingModule,
     CoreModule,
     SharedModule,
-    SpeachModule,
+    ActionModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

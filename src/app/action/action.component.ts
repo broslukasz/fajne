@@ -8,6 +8,8 @@ import { ButtonContextClass } from '../enums/button-context-class.enum';
 import { FirebaseObject } from '../enums/firebase-object';
 import { AppStateComponent } from '../core/app-state/app-state.component';
 import { FirabaseStateCommunicationService } from '../core/firabase-state-communication.service';
+import * as firebase from 'firebase/app';
+import { isNullOrUndefined } from 'util';
 
 @Component({
   selector: 'app-action',
@@ -32,9 +34,20 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
   }
 
   ngOnInit() {
+    this.authService.login();
+    this.authService.user$.subscribe((user: (firebase.User | null)) => {
+      if (!user) {
+        this.setWaitForConnectionState();
+        return;
+      }
+
+      this.watchForContextChanges();
+      this.firabaseStateCommunicationService.initializaFirebaseState();
+      this.db.object(FirebaseObject.Connected).set(true);
+      this.goToActionStartState();
+    });
+
     this.db.database.ref(FirebaseObject.ActionRunning).onDisconnect().set(false);
-    this.initializeContextState();
-    this.watchForContextChanges();
   }
 
   public ngOnDestroy(): void {
@@ -63,17 +76,6 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
       default:
       throw new Error('Unrecognized action');
     }
-  }
-
-  private initializeContextState(): void {
-    this.connected.subscribe((connected: boolean) => {
-      if (!connected) {
-        this.setWaitForConnectionState();
-        return;
-      }
-
-      this.authService.login();
-    });
   }
 
   private loginAction(): void {
@@ -161,7 +163,9 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
 
     combineLatest(this.actionRunning, this.currentPerformer)
       .subscribe(([speachRunning, currentSpeaker]: [boolean, string]) => {
-        this.changeContext(speachRunning, currentSpeaker);
+        if (!isNullOrUndefined(speachRunning) && !isNullOrUndefined(currentSpeaker)) {
+          this.changeContext(speachRunning, currentSpeaker);
+        }
       });
   }
 

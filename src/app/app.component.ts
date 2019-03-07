@@ -19,8 +19,6 @@ export class AppComponent extends AppStateComponent implements OnInit {
   }
 
   public ngOnInit(): void {
-    this.firabaseStateCommunicationService.initializaFirebaseStete();
-
     this.watchForResultAvailbility();
   }
 
