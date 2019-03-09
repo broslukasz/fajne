@@ -1,4 +1,4 @@
-export enum ContextState {
+export enum CurrentContextState {
   WaitForConnection,
   LoginView,
   ActionStart,

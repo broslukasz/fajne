@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AngularFireDatabase } from '@angular/fire/database';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
-import { ContextState } from '../enums/context-state.enum';
+import { CurrentContextState } from '../enums/context-state.enum';
 import { ContextAction } from '../enums/context-action.enum';
 import { ButtonContextClass } from '../enums/button-context-class.enum';
 import { FirebaseObject } from '../enums/firebase-object';
@@ -22,7 +22,7 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
   private currentPerformer: Observable<string | null>;
 
   public nextContextAction: ContextAction | number;
-  public currentContextState: ContextState;
+  public currentContextState: CurrentContextState;
   public buttonContextClass: ButtonContextClass;
   private readonly resultAppearanceTime: number = 3000;
 
@@ -57,25 +57,25 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
 
   public performContextAction(): void {
     switch (this.currentContextState) {
-      case ContextState.LoginView:
+      case CurrentContextState.LoginView:
         this.loginAction();
         break;
 
-      case ContextState.ActionStart:
+      case CurrentContextState.ActionStart:
         this.db.object<boolean>(FirebaseObject.ActionRunning).set(true);
         this.db.object<string>(FirebaseObject.CurrentPerformer).set(this.authService.user$.getValue().uid);
         break;
 
-      case ContextState.PerformerInAction:
+      case CurrentContextState.PerformerInAction:
         this.db.object<boolean>(FirebaseObject.ActionRunning).set(false);
         this.db.object<string>(FirebaseObject.CurrentPerformer).set(null);
         break;
 
-      case ContextState.ParticipantInAction:
+      case CurrentContextState.ParticipantInAction:
         this.incrementSpeachFeature();
         break;
 
-      case ContextState.ShowResult:
+      case CurrentContextState.ShowResult:
         this.goToActiveContext();
         break;
 
@@ -86,36 +86,39 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
 
   private loginAction(): void {
     this.nextContextAction = ContextAction.ActionStart;
-    this.currentContextState = ContextState.ActionStart;
+    this.currentContextState = CurrentContextState.ActionStart;
   }
 
   private startActionAsPerformer(): void {
     this.nextContextAction = ContextAction.ActionForPerformer;
-    this.currentContextState = ContextState.PerformerInAction;
+    this.currentContextState = CurrentContextState.PerformerInAction;
     this.buttonContextClass = ButtonContextClass.PerformerInAction;
   }
 
   private enableVotingForParticipant(): void {
-    this.nextContextAction = ContextAction.ActionForParticipant;
-    this.currentContextState = ContextState.ParticipantInAction;
-    this.buttonContextClass = ButtonContextClass.ParticipantInAction;
+    if (this.currentContextState === CurrentContextState.ShowResult) {
+      setTimeout(() => this.setEnableVotingForParticipant(), this.resultAppearanceTime);
+      return;
+    }
+
+    this.setEnableVotingForParticipant();
   }
 
   private goToActionStartState(): void {
     this.nextContextAction = ContextAction.ActionStart;
-    this.currentContextState = ContextState.ActionStart;
+    this.currentContextState = CurrentContextState.ActionStart;
     this.buttonContextClass = ButtonContextClass.ActionStart;
   }
 
   private goToShowResultState(): void {
     this.nextContextAction = this.actionCounter.getValue();
-    this.currentContextState = ContextState.ShowResult;
+    this.currentContextState = CurrentContextState.ShowResult;
     this.buttonContextClass = ButtonContextClass.ShowResult;
   }
 
   private setWaitForConnectionState(): void {
     this.nextContextAction = ContextAction.WaitForConnection;
-    this.currentContextState = ContextState.WaitForConnection;
+    this.currentContextState = CurrentContextState.WaitForConnection;
     this.buttonContextClass = ButtonContextClass.WaitForConnection;
   }
 
@@ -123,7 +126,7 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
     this.db.object<number>(FirebaseObject.ActionCounter).set(0);
   }
 
-  private changeContext(speachRunning: boolean, currentSpeaker: string): void {
+  private reactOnNewContext(speachRunning: boolean, currentSpeaker: string): void {
     if (this.someoneElseStartedAction(speachRunning, currentSpeaker)) {
       this.enableVotingForParticipant();
       return;
@@ -156,7 +159,9 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
   }
 
   private itWasMeWhoFinishedTheAction(speachRunning: boolean, currentSpeaker: string): boolean {
-    return !speachRunning && currentSpeaker === this.authService.userUid;
+    return !speachRunning &&
+           currentSpeaker === this.authService.userUid &&
+           this.currentContextState === CurrentContextState.PerformerInAction;
   }
 
   private someoneElseFinishedTheAction(speachRunning: boolean, currentSpeaker: string): boolean {
@@ -177,7 +182,7 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
         this.actionRunning$.next(actionRunning);
 
         if (!isNullOrUndefined(actionRunning) && !isNullOrUndefined(currentPerformer)) {
-          this.changeContext(actionRunning, currentPerformer);
+          this.reactOnNewContext(actionRunning, currentPerformer);
         }
       });
   }
@@ -195,5 +200,11 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
     }
 
     this.enableVotingForParticipant();
+  }
+
+  private setEnableVotingForParticipant() {
+    this.nextContextAction = ContextAction.ActionForParticipant;
+    this.currentContextState = CurrentContextState.ParticipantInAction;
+    this.buttonContextClass = ButtonContextClass.ParticipantInAction;
   }
 }
