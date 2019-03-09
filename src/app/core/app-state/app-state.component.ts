@@ -16,8 +16,8 @@ export class AppStateComponent implements OnInit {
   ngOnInit() {
   }
 
-  public get connected(): BehaviorSubject<boolean> {
-    return this.firabaseStateCommunicationService.connected$;
+  public get loggedIn(): BehaviorSubject<boolean> {
+    return this.firabaseStateCommunicationService.loggedIn$;
   }
 
   public get actionCounter(): BehaviorSubject<number> {

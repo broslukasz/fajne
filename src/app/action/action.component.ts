@@ -44,7 +44,7 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
 
       this.watchForContextChanges();
       this.firabaseStateCommunicationService.initializaFirebaseState();
-      this.db.object(FirebaseObject.Connected).set(true);
+      this.loggedIn.next(true);
       this.goToActionStartState();
     });
 
