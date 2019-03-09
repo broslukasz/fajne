@@ -76,7 +76,6 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
         break;
 
       case CurrentContextState.ShowResult:
-        this.goToActiveContext();
         break;
 
       default:
@@ -145,7 +144,7 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
     if (this.itWasMeWhoFinishedTheAction(speachRunning, currentSpeaker)) {
       this.goToShowResultState();
       this.resetTheResult();
-      this.goToActionStartStateInDelay();
+      this.goToActiveContextInDelay();
       return;
     }
   }
@@ -187,7 +186,7 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
       });
   }
 
-  private goToActionStartStateInDelay(): void {
+  private goToActiveContextInDelay(): void {
     setTimeout(() => {
       this.goToActiveContext();
     }, this.resultAppearanceTime);
