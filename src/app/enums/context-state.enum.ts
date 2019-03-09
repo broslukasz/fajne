@@ -3,5 +3,6 @@ export enum ContextState {
   LoginView,
   ActionStart,
   ParticipantInAction,
-  PerformerInAction
+  PerformerInAction,
+  ShowResult
 }

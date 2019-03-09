@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AngularFireDatabase } from '@angular/fire/database';
-import { combineLatest, Observable } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 import { ContextState } from '../enums/context-state.enum';
 import { ContextAction } from '../enums/context-action.enum';
@@ -18,9 +18,10 @@ import { isNullOrUndefined } from 'util';
 })
 export class ActionComponent extends AppStateComponent implements OnInit, OnDestroy {
   private actionRunning: Observable<boolean | null>;
+  private actionRunning$: BehaviorSubject<boolean> = new BehaviorSubject(false);
   private currentPerformer: Observable<string | null>;
 
-  public nextContextAction: ContextAction;
+  public nextContextAction: ContextAction | number;
   public currentContextState: ContextState;
   public buttonContextClass: ButtonContextClass;
   private readonly resultAppearanceTime: number = 3000;
@@ -73,6 +74,11 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
       case ContextState.ParticipantInAction:
         this.incrementSpeachFeature();
         break;
+
+      case ContextState.ShowResult:
+        this.goToActiveContext();
+        break;
+
       default:
       throw new Error('Unrecognized action');
     }
@@ -101,14 +107,19 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
     this.buttonContextClass = ButtonContextClass.ActionStart;
   }
 
+  private goToShowResultState(): void {
+    this.nextContextAction = this.actionCounter.getValue();
+    this.currentContextState = ContextState.ShowResult;
+    this.buttonContextClass = ButtonContextClass.ShowResult;
+  }
+
   private setWaitForConnectionState(): void {
     this.nextContextAction = ContextAction.WaitForConnection;
     this.currentContextState = ContextState.WaitForConnection;
     this.buttonContextClass = ButtonContextClass.WaitForConnection;
   }
 
-  private showMeTheResult() {
-    this.firabaseStateCommunicationService.isResultAvailable$.next(true);
+  private resetTheResult() {
     this.db.object<number>(FirebaseObject.ActionCounter).set(0);
   }
 
@@ -129,9 +140,9 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
     }
 
     if (this.itWasMeWhoFinishedTheAction(speachRunning, currentSpeaker)) {
-      this.goToActionStartState();
-      this.showMeTheResult();
-      this.setTimerForResultDisplay();
+      this.goToShowResultState();
+      this.resetTheResult();
+      this.goToActionStartStateInDelay();
       return;
     }
   }
@@ -162,16 +173,27 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
     this.currentPerformer = this.db.object<string>(FirebaseObject.CurrentPerformer).valueChanges();
 
     combineLatest(this.actionRunning, this.currentPerformer)
-      .subscribe(([speachRunning, currentSpeaker]: [boolean, string]) => {
-        if (!isNullOrUndefined(speachRunning) && !isNullOrUndefined(currentSpeaker)) {
-          this.changeContext(speachRunning, currentSpeaker);
+      .subscribe(([actionRunning, currentPerformer]: [boolean, string]) => {
+        this.actionRunning$.next(actionRunning);
+
+        if (!isNullOrUndefined(actionRunning) && !isNullOrUndefined(currentPerformer)) {
+          this.changeContext(actionRunning, currentPerformer);
         }
       });
   }
 
-  private setTimerForResultDisplay(): void {
+  private goToActionStartStateInDelay(): void {
     setTimeout(() => {
-      this.firabaseStateCommunicationService.isResultAvailable$.next(false);
+      this.goToActiveContext();
     }, this.resultAppearanceTime);
+  }
+
+  private goToActiveContext(): void {
+    if (!this.actionRunning$.getValue()) {
+      this.goToActionStartState();
+      return;
+    }
+
+    this.enableVotingForParticipant();
   }
 }
