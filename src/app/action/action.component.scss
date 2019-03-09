@@ -20,7 +20,7 @@ button {
 }
 
 .action-start {
-  background: $app-color-rebeccapurple;
+  background: $app-color-start;
 }
 
 .participant-in-action {
@@ -28,5 +28,9 @@ button {
 }
 
 .performer-in-action {
-  background: $app-color-red-01;
+  background: $app-color-finish;
+}
+
+.show-result {
+  background: $app-color-result;
 }
