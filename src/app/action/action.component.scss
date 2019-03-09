@@ -1,7 +1,7 @@
-@import "src/variables.scss";
+@import "src/variables";
 
 :host {
-  height: 80vh;
+  height: $main-view-height;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -13,6 +13,8 @@ button {
   height: 14rem;
   font-size: $font-context-button;
   color: $app-color-white;
+  position: relative;
+  top: $context-button-relative-top;
 }
 
 .login-view {

@@ -1,5 +1,7 @@
+@import "variables";
+
 html, body {
-    height: 90vh;
-    max-height: 90vh;
+    height: $main-view-height;
+    max-height: $main-view-height;
     margin: 0;
 }

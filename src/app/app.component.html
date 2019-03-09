@@ -1,8 +1,1 @@
-<header>
-  <mat-card>
-    <span *ngIf="!(loggedIn | async)">Waiting for connection</span>
-    <span *ngIf="isResultAvailable">You got {{ result }}</span>
-  </mat-card>
-</header>
-
 <router-outlet></router-outlet>
