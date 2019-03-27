@@ -10,11 +10,13 @@ import { AppStateComponent } from '../core/app-state/app-state.component';
 import { FirabaseStateCommunicationService } from '../core/firabase-state-communication.service';
 import * as firebase from 'firebase/app';
 import { isNullOrUndefined } from 'util';
+import {ActionService} from './services/action.service';
 
 @Component({
   selector: 'app-action',
   templateUrl: './action.component.html',
-  styleUrls: ['./action.component.scss']
+  styleUrls: ['./action.component.scss'],
+  providers: [ActionService]
 })
 export class ActionComponent extends AppStateComponent implements OnInit, OnDestroy {
   private actionRunning: Observable<boolean | null>;
@@ -27,9 +29,10 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
   private readonly resultAppearanceTime: number = 3000;
 
   constructor(
-    private db: AngularFireDatabase,
     public authService: AuthService,
-    public firabaseStateCommunicationService: FirabaseStateCommunicationService
+    public firabaseStateCommunicationService: FirabaseStateCommunicationService,
+    public actionService: ActionService,
+    private db: AngularFireDatabase
   ) {
     super(firabaseStateCommunicationService);
   }
