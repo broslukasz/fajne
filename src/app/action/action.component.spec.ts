@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ActionComponent } from './action.component';
 import { AngularFireDatabase } from '@angular/fire/database';
@@ -6,6 +6,7 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { of } from 'rxjs';
 import { anything, instance, mock, when } from 'ts-mockito';
 import { AuthService } from '../auth/auth.service';
+import {configureTestSuite} from '../tests/utils/configure-test-suite';
 
 describe('ActionComponent', () => {
   let component: ActionComponent;
@@ -18,7 +19,9 @@ describe('ActionComponent', () => {
     }
   );
 
-  beforeEach(async(() => {
+  configureTestSuite();
+
+  beforeAll(done => (async () => {
     TestBed.configureTestingModule({
       declarations: [ ActionComponent ],
       providers: [
@@ -26,9 +29,10 @@ describe('ActionComponent', () => {
         {provide: AuthService, useValue: instance(AuthService)}
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA]
-    })
-    .compileComponents();
-  }));
+    });
+
+    await TestBed.compileComponents();
+  })().then(done).catch(done.fail));
 
   beforeEach(() => {
     fixture = TestBed.createComponent(ActionComponent);
