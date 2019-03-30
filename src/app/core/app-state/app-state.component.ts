@@ -9,15 +9,12 @@ import { FirabaseStateCommunicationService } from '../firabase-state-communicati
 })
 export class AppStateComponent implements OnInit {
 
+
   constructor(
     public firabaseStateCommunicationService: FirabaseStateCommunicationService
   ) { }
 
   ngOnInit() {
-  }
-
-  public get loggedIn(): BehaviorSubject<boolean> {
-    return this.firabaseStateCommunicationService.loggedIn$;
   }
 
   public get actionCounter(): BehaviorSubject<number> {

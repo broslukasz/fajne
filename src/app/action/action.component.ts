@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AngularFireDatabase } from '@angular/fire/database';
-import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
+import { BehaviorSubject, combineLatest } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 import { CurrentContextState } from './enums/context-state.enum';
 import { ContextAction } from './enums/context-action.enum';
@@ -44,7 +44,6 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
       }
 
       this.firabaseStateCommunicationService.initializaActionCounter();
-      this.loggedIn.next(true);
       this.goToActionStartState();
       this.watchForContextChanges();
     });

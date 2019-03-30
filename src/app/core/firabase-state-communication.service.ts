@@ -7,7 +7,6 @@ import { FirebaseObject } from './enums/firebase-object';
   providedIn: 'root'
 })
 export class FirabaseStateCommunicationService {
-  public loggedIn$: BehaviorSubject<boolean> = new BehaviorSubject(false);
   public actionCounter$: BehaviorSubject<number> = new BehaviorSubject(0);
 
   constructor(

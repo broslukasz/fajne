@@ -1,1 +1,1 @@
-<button [ngClass]="buttonContextClass" (click)="performContextAction()" mat-fab color="primary" [disabled]="!(loggedIn | async)">{{ nextContextAction }}</button>
+<button [ngClass]="buttonContextClass" (click)="performContextAction()" mat-fab color="primary" [disabled]="!(authService.user$ | async)">{{ nextContextAction }}</button>
