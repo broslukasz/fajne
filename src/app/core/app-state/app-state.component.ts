@@ -3,7 +3,7 @@ import { BehaviorSubject } from 'rxjs';
 import { FirabaseStateCommunicationService } from '../firabase-state-communication.service';
 
 @Component({
-  selector: 'app-app-state',
+  selector: 'app-state',
   templateUrl: './app-state.component.html',
   styleUrls: ['./app-state.component.scss']
 })

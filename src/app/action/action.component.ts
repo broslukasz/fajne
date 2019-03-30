@@ -19,9 +19,7 @@ import { ActionService } from './action.service';
   providers: [ActionService]
 })
 export class ActionComponent extends AppStateComponent implements OnInit, OnDestroy {
-  private actionRunning: Observable<boolean | null>;
   private actionRunning$: BehaviorSubject<boolean> = new BehaviorSubject(false);
-  private currentPerformer: Observable<string | null>;
 
   public nextContextAction: ContextAction | number;
   public currentContextState: CurrentContextState;
@@ -176,10 +174,10 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
   }
 
   private watchForContextChanges(): void {
-    this.actionRunning = this.db.object<boolean>(FirebaseObject.ActionRunning).valueChanges();
-    this.currentPerformer = this.db.object<string>(FirebaseObject.CurrentPerformer).valueChanges();
-
-    combineLatest(this.actionRunning, this.currentPerformer)
+    combineLatest(
+      this.db.object<boolean>(FirebaseObject.ActionRunning).valueChanges(),
+      this.db.object<string>(FirebaseObject.CurrentPerformer).valueChanges()
+    )
       .subscribe(([actionRunning, currentPerformer]: [boolean, string]) => {
         this.actionRunning$.next(actionRunning);
 
