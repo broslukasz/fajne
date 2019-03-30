@@ -128,23 +128,23 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
     this.db.object<number>(FirebaseObject.ActionCounter).set(0);
   }
 
-  private reactOnNewContext(speachRunning: boolean, currentSpeaker: string): void {
-    if (this.someoneElseStartedAction(speachRunning, currentSpeaker)) {
+  private reactOnNewContext(actionRunning: boolean, currentSpeaker: string): void {
+    if (this.someoneElseStartedAction(actionRunning, currentSpeaker)) {
       this.enableVotingForParticipant();
       return;
     }
 
-    if (this.itWasMeWhoStartedAction(speachRunning, currentSpeaker)) {
+    if (this.itWasMeWhoStartedAction(actionRunning, currentSpeaker)) {
       this.startActionAsPerformer();
       return;
     }
 
-    if (this.someoneElseFinishedTheAction(speachRunning, currentSpeaker)) {
+    if (this.someoneElseFinishedTheAction(actionRunning, currentSpeaker)) {
       this.goToActionStartState();
       return;
     }
 
-    if (this.itWasMeWhoFinishedTheAction(speachRunning, currentSpeaker)) {
+    if (this.itWasMeWhoFinishedTheAction(actionRunning, currentSpeaker)) {
       this.goToShowResultState();
       this.resetTheResult();
       this.goToActiveContextInDelay();

@@ -9,7 +9,6 @@ import { FirebaseObject } from './enums/firebase-object';
 export class FirabaseStateCommunicationService {
   public loggedIn$: BehaviorSubject<boolean> = new BehaviorSubject(false);
   public actionCounter$: BehaviorSubject<number> = new BehaviorSubject(0);
-  public isResultAvailable$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
   constructor(
     private db: AngularFireDatabase
