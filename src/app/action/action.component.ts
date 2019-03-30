@@ -6,8 +6,6 @@ import { CurrentContextState } from './enums/context-state.enum';
 import { ContextAction } from './enums/context-action.enum';
 import { ButtonContextClass } from './enums/button-context-class.enum';
 import { FirebaseObject } from '../core/enums/firebase-object';
-import { AppStateComponent } from '../core/app-state/app-state.component';
-import { FirabaseStateCommunicationService } from '../core/firabase-state-communication.service';
 import * as firebase from 'firebase/app';
 import { isNullOrUndefined } from 'util';
 import { ActionService } from './action.service';
@@ -18,7 +16,7 @@ import { ActionService } from './action.service';
   styleUrls: ['./action.component.scss'],
   providers: [ActionService]
 })
-export class ActionComponent extends AppStateComponent implements OnInit, OnDestroy {
+export class ActionComponent implements OnInit, OnDestroy {
   private actionRunning$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
   public nextContextAction: ContextAction | number;
@@ -28,12 +26,9 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
 
   constructor(
     public authService: AuthService,
-    public firabaseStateCommunicationService: FirabaseStateCommunicationService,
     public actionService: ActionService,
     private db: AngularFireDatabase
-  ) {
-    super(firabaseStateCommunicationService);
-  }
+  ) { }
 
   ngOnInit() {
     this.authService.login();
@@ -43,7 +38,7 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
         return;
       }
 
-      this.firabaseStateCommunicationService.initializaActionCounter();
+      this.actionService.initializaActionCounter();
       this.goToActionStartState();
       this.watchForContextChanges();
     });
@@ -119,7 +114,7 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
   }
 
   private goToShowResultState(): void {
-    this.nextContextAction = this.actionCounter.getValue();
+    this.nextContextAction = this.actionService.actionCounter$.getValue();
     this.currentContextState = CurrentContextState.ShowResult;
     this.buttonContextClass = ButtonContextClass.ShowResult;
   }
@@ -178,7 +173,7 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
   }
 
   private incrementSpeachFeature(): void {
-    let currentActionCounterValue: number = this.actionCounter.getValue();
+    let currentActionCounterValue: number = this.actionService.actionCounter$.getValue();
     this.db.object<number>(FirebaseObject.ActionCounter).set(++currentActionCounterValue);
   }
 
