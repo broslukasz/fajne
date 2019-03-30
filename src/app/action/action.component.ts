@@ -2,15 +2,15 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AngularFireDatabase } from '@angular/fire/database';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
-import { CurrentContextState } from '../enums/context-state.enum';
-import { ContextAction } from '../enums/context-action.enum';
-import { ButtonContextClass } from '../enums/button-context-class.enum';
-import { FirebaseObject } from '../enums/firebase-object';
+import { CurrentContextState } from './enums/context-state.enum';
+import { ContextAction } from './enums/context-action.enum';
+import { ButtonContextClass } from './enums/button-context-class.enum';
+import { FirebaseObject } from '../core/enums/firebase-object';
 import { AppStateComponent } from '../core/app-state/app-state.component';
 import { FirabaseStateCommunicationService } from '../core/firabase-state-communication.service';
 import * as firebase from 'firebase/app';
 import { isNullOrUndefined } from 'util';
-import {ActionService} from './services/action.service';
+import { ActionService } from './action.service';
 
 @Component({
   selector: 'app-action',
@@ -45,10 +45,10 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
         return;
       }
 
-      this.watchForContextChanges();
-      this.firabaseStateCommunicationService.initializaFirebaseState();
+      this.firabaseStateCommunicationService.initializaActionCounter();
       this.loggedIn.next(true);
       this.goToActionStartState();
+      this.watchForContextChanges();
     });
 
     this.db.database.ref(FirebaseObject.ActionRunning).onDisconnect().set(false);

@@ -6,8 +6,8 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { of } from 'rxjs';
 import { anything, instance, mock, when } from 'ts-mockito';
 import { AuthService } from '../auth/auth.service';
-import {configureTestSuite} from '../tests/utils/configure-test.suite.spec';
-import {ActionService} from './services/action.service';
+import {configureTestSuite} from '../../tests/utils/configure-test.suite.spec';
+import {ActionService} from './action.service';
 
 describe('ActionComponent', () => {
   let component: ActionComponent;
