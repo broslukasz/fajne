@@ -9,6 +9,7 @@ import { FirebaseObject } from '../core/enums/firebase-object';
 import * as firebase from 'firebase/app';
 import { isNullOrUndefined } from 'util';
 import { ActionService } from './action.service';
+import { ActionButton } from './action-button';
 
 @Component({
   selector: 'app-action',
@@ -18,10 +19,8 @@ import { ActionService } from './action.service';
 })
 export class ActionComponent implements OnInit, OnDestroy {
   private actionRunning$: BehaviorSubject<boolean> = new BehaviorSubject(false);
+  public actionButton: ActionButton;
 
-  public nextContextAction: ContextAction | number;
-  public currentContextState: CurrentContextState;
-  public buttonContextClass: ButtonContextClass;
   private readonly resultAppearanceTime: number = 3000;
 
   constructor(
@@ -34,26 +33,24 @@ export class ActionComponent implements OnInit, OnDestroy {
     this.authService.login();
     this.authService.user$.subscribe((user: (firebase.User | null)) => {
       if (!user) {
-        this.setWaitForConnectionState();
+        this.actionButton = this.actionService.setWaitForConnectionState();
         return;
       }
 
       this.actionService.initializaActionCounter();
-      this.goToActionStartState();
+      this.actionButton = this.actionService.goToActionStartState();
       this.watchForContextChanges();
     });
 
     this.db.database.ref(FirebaseObject.ActionRunning).onDisconnect().set(false);
   }
 
-  public ngOnDestroy(): void {
-
-  }
+  public ngOnDestroy(): void { }
 
   public performContextAction(): void {
-    switch (this.currentContextState) {
+    switch (this.actionButton.currentContextState) {
       case CurrentContextState.LoginView:
-        this.loginAction();
+        this.actionButton = this.actionService.loginAction();
         break;
 
       case CurrentContextState.ActionStart:
@@ -81,102 +78,6 @@ export class ActionComponent implements OnInit, OnDestroy {
     }
   }
 
-  private loginAction(): void {
-    this.nextContextAction = ContextAction.ActionStart;
-    this.currentContextState = CurrentContextState.ActionStart;
-  }
-
-  private startActionAsPerformer(): void {
-    this.nextContextAction = ContextAction.ActionForPerformer;
-    this.currentContextState = CurrentContextState.PerformerInAction;
-    this.buttonContextClass = ButtonContextClass.PerformerInAction;
-  }
-
-  private enableVotingForParticipant(): void {
-    if (this.currentContextState === CurrentContextState.ShowResult) {
-      setTimeout(() => this.setEnableVotingForParticipant(), this.resultAppearanceTime);
-      return;
-    }
-
-    this.setEnableVotingForParticipant();
-  }
-
-  private goToActionStartState(): void {
-    this.nextContextAction = ContextAction.ActionStart;
-    this.currentContextState = CurrentContextState.ActionStart;
-    this.buttonContextClass = ButtonContextClass.ActionStart;
-  }
-
-  private goToThankYouState(): void {
-    this.nextContextAction = ContextAction.ThankYouInformation;
-    this.currentContextState = CurrentContextState.ThankYouInformation;
-    this.buttonContextClass = ButtonContextClass.ThankYouInformation;
-  }
-
-  private goToShowResultState(): void {
-    this.nextContextAction = this.actionService.actionCounter$.getValue();
-    this.currentContextState = CurrentContextState.ShowResult;
-    this.buttonContextClass = ButtonContextClass.ShowResult;
-  }
-
-  private setWaitForConnectionState(): void {
-    this.nextContextAction = ContextAction.WaitForConnection;
-    this.currentContextState = CurrentContextState.WaitForConnection;
-    this.buttonContextClass = ButtonContextClass.WaitForConnection;
-  }
-
-  private resetTheResult() {
-    this.db.object<number>(FirebaseObject.ActionCounter).set(0);
-  }
-
-  private reactOnNewContext(actionRunning: boolean, currentSpeaker: string): void {
-    if (this.someoneElseStartedAction(actionRunning, currentSpeaker)) {
-      this.enableVotingForParticipant();
-      return;
-    }
-
-    if (this.itWasMeWhoStartedAction(actionRunning, currentSpeaker)) {
-      this.startActionAsPerformer();
-      return;
-    }
-
-    if (this.someoneElseFinishedTheAction(actionRunning, currentSpeaker)) {
-      this.goToThankYouState();
-      setTimeout(() => this.goToActionStartState(), this.resultAppearanceTime);
-      return;
-    }
-
-    if (this.itWasMeWhoFinishedTheAction(actionRunning, currentSpeaker)) {
-      this.goToShowResultState();
-      this.resetTheResult();
-      setTimeout(() => this.goToActionStartState(), this.resultAppearanceTime);
-      return;
-    }
-  }
-
-  private itWasMeWhoStartedAction(speachRunning: boolean, currentSpeaker: string): boolean {
-    return speachRunning && currentSpeaker === this.authService.userUid;
-  }
-
-  private someoneElseStartedAction(speachRunning: boolean, currentSpeaker: string) {
-    return speachRunning && currentSpeaker !== this.authService.userUid;
-  }
-
-  private itWasMeWhoFinishedTheAction(speachRunning: boolean, currentSpeaker: string): boolean {
-    return !speachRunning &&
-           currentSpeaker === this.authService.userUid &&
-           this.currentContextState === CurrentContextState.PerformerInAction;
-  }
-
-  private someoneElseFinishedTheAction(speachRunning: boolean, currentSpeaker: string): boolean {
-    return !speachRunning && currentSpeaker !== this.authService.userUid;
-  }
-
-  private incrementSpeachFeature(): void {
-    let currentActionCounterValue: number = this.actionService.actionCounter$.getValue();
-    this.db.object<number>(FirebaseObject.ActionCounter).set(++currentActionCounterValue);
-  }
-
   private watchForContextChanges(): void {
     combineLatest(
       this.db.object<boolean>(FirebaseObject.ActionRunning).valueChanges(),
@@ -191,9 +92,64 @@ export class ActionComponent implements OnInit, OnDestroy {
       });
   }
 
-  private setEnableVotingForParticipant() {
-    this.nextContextAction = ContextAction.ActionForParticipant;
-    this.currentContextState = CurrentContextState.ParticipantInAction;
-    this.buttonContextClass = ButtonContextClass.ParticipantInAction;
+  private reactOnNewContext(actionRunning: boolean, currentSpeaker: string): void {
+    if (this.someoneElseStartedAction(actionRunning, currentSpeaker)) {
+      this.enableVotingForParticipant();
+      return;
+    }
+
+    if (this.itWasMeWhoStartedAction(actionRunning, currentSpeaker)) {
+      this.actionButton = this.actionService.startActionAsPerformer();
+      return;
+    }
+
+    if (this.someoneElseFinishedTheAction(actionRunning, currentSpeaker)) {
+      this.actionButton = this.actionService.goToThankYouState();
+      setTimeout(() => this.actionButton = this.actionService.goToActionStartState(), this.resultAppearanceTime);
+      return;
+    }
+
+    if (this.itWasMeWhoFinishedTheAction(actionRunning, currentSpeaker)) {
+      this.actionButton = this.actionService.goToShowResultState();
+      this.resetTheResult();
+      setTimeout(() => this.actionButton = this.actionService.goToActionStartState(), this.resultAppearanceTime);
+      return;
+    }
+  }
+
+  private enableVotingForParticipant(): void {
+    if (this.actionButton.currentContextState === CurrentContextState.ShowResult) {
+      setTimeout(() => this.actionButton = this.actionService.setEnableVotingForParticipant(), this.resultAppearanceTime);
+      return;
+    }
+
+    this.actionButton = this.actionService.setEnableVotingForParticipant();
+  }
+
+  private resetTheResult() {
+    this.db.object<number>(FirebaseObject.ActionCounter).set(0);
+  }
+
+  private itWasMeWhoStartedAction(speachRunning: boolean, currentSpeaker: string): boolean {
+    return speachRunning && currentSpeaker === this.authService.userUid;
+  }
+
+  private someoneElseStartedAction(speachRunning: boolean, currentSpeaker: string) {
+    return speachRunning && currentSpeaker !== this.authService.userUid;
+  }
+
+  private itWasMeWhoFinishedTheAction(speachRunning: boolean, currentSpeaker: string): boolean {
+    return !speachRunning &&
+           currentSpeaker === this.authService.userUid &&
+           this.actionButton.currentContextState === CurrentContextState.PerformerInAction;
+  }
+
+  private someoneElseFinishedTheAction(speachRunning: boolean, currentSpeaker: string): boolean {
+    return !speachRunning && currentSpeaker !== this.authService.userUid;
+  }
+
+  private incrementSpeachFeature(): void {
+    let currentActionCounterValue: number = this.actionService.actionCounter$.getValue();
+    this.db.object<number>(FirebaseObject.ActionCounter).set(++currentActionCounterValue);
   }
 }
