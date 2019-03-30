@@ -155,7 +155,7 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
     if (this.itWasMeWhoFinishedTheAction(actionRunning, currentSpeaker)) {
       this.goToShowResultState();
       this.resetTheResult();
-      this.goToActiveContextInDelay();
+      setTimeout(() => this.goToActionStartState(), this.resultAppearanceTime);
       return;
     }
   }
@@ -195,21 +195,6 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
           this.reactOnNewContext(actionRunning, currentPerformer);
         }
       });
-  }
-
-  private goToActiveContextInDelay(): void {
-    setTimeout(() => {
-      this.goToActiveContext();
-    }, this.resultAppearanceTime);
-  }
-
-  private goToActiveContext(): void {
-    if (!this.actionRunning$.getValue()) {
-      this.goToActionStartState();
-      return;
-    }
-
-    this.enableVotingForParticipant();
   }
 
   private setEnableVotingForParticipant() {
