@@ -79,6 +79,9 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
       case CurrentContextState.ShowResult:
         break;
 
+      case CurrentContextState.ThankYouInformation:
+        break;
+
       default:
       throw new Error('Unrecognized action');
     }
@@ -110,6 +113,12 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
     this.buttonContextClass = ButtonContextClass.ActionStart;
   }
 
+  private goToThankYouState(): void {
+    this.nextContextAction = ContextAction.ThankYouInformation;
+    this.currentContextState = CurrentContextState.ThankYouInformation;
+    this.buttonContextClass = ButtonContextClass.ThankYouInformation;
+  }
+
   private goToShowResultState(): void {
     this.nextContextAction = this.actionCounter.getValue();
     this.currentContextState = CurrentContextState.ShowResult;
@@ -138,7 +147,8 @@ export class ActionComponent extends AppStateComponent implements OnInit, OnDest
     }
 
     if (this.someoneElseFinishedTheAction(actionRunning, currentSpeaker)) {
-      this.goToActionStartState();
+      this.goToThankYouState();
+      setTimeout(() => this.goToActionStartState(), this.resultAppearanceTime);
       return;
     }
 

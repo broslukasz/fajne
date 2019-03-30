@@ -4,5 +4,6 @@ export enum CurrentContextState {
   ActionStart,
   ParticipantInAction,
   PerformerInAction,
-  ShowResult
+  ShowResult,
+  ThankYouInformation
 }

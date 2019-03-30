@@ -4,4 +4,5 @@ export enum ContextAction {
   ActionStart = 'Start',
   ActionForParticipant = 'Fajne',
   ActionForPerformer = 'Finish',
+  ThankYouInformation = 'Thanks',
 }

@@ -4,5 +4,6 @@ export enum ButtonContextClass {
   ActionStart = 'action-start',
   ParticipantInAction = 'participant-in-action',
   PerformerInAction = 'performer-in-action',
-  ShowResult = 'show-result'
+  ShowResult = 'show-result',
+  ThankYouInformation = 'thank-you-information'
 }
