@@ -28,4 +28,13 @@ export class CoreModule {
       throw new Error('Core module imported multiple times!');
     }
   }
+
+  static forRoot(): ModuleWithProviders {
+    return {
+      ngModule: CoreModule,
+      providers: [
+        AngularFireDatabase
+      ]
+    };
+  }
  }
