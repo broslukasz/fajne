@@ -14,7 +14,7 @@ import { ActionModule } from './action/action.module';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    CoreModule.forRoot(),
+    CoreModule,
     SharedModule,
     ActionModule,
   ],

@@ -16,6 +16,9 @@ import { AuthModule } from '../auth/auth.module';
     AngularFireModule.initializeApp(environment.firebase),
     AngularFirestoreModule,
     AuthModule
+  ],
+  providers: [
+    AngularFireDatabase
   ]
 })
 export class CoreModule {
@@ -24,14 +27,5 @@ export class CoreModule {
     if (core) {
       throw new Error('Core module imported multiple times!');
     }
-  }
-
-  static forRoot(): ModuleWithProviders {
-    return {
-      ngModule: CoreModule,
-      providers: [
-        AngularFireDatabase
-      ]
-    };
   }
  }
