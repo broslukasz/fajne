@@ -6,7 +6,6 @@ import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { AngularFireDatabase } from '@angular/fire/database';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AuthModule } from '../auth/auth.module';
-import { FirabaseStateCommunicationService } from './firabase-state-communication.service';
 
 @NgModule({
   declarations: [
@@ -20,7 +19,6 @@ import { FirabaseStateCommunicationService } from './firabase-state-communicatio
   ],
   providers: [
     AngularFireDatabase,
-    FirabaseStateCommunicationService
   ]
 })
 export class CoreModule {
