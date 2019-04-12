@@ -3,8 +3,6 @@ import { AngularFireDatabase } from '@angular/fire/database';
 import { BehaviorSubject, combineLatest } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 import { CurrentContextState } from './enums/context-state.enum';
-import { ContextAction } from './enums/context-action.enum';
-import { ButtonContextClass } from './enums/button-context-class.enum';
 import { FirebaseObject } from '../core/enums/firebase-object';
 import * as firebase from 'firebase/app';
 import { isNullOrUndefined } from 'util';

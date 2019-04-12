@@ -1,16 +1,21 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { AuthService } from './auth.service';
+import { ModuleWithProviders, NgModule, Optional, SkipSelf } from '@angular/core';
 import { AngularFireAuthModule } from '@angular/fire/auth';
 
 @NgModule({
-  declarations: [],
   imports: [
-    CommonModule,
     AngularFireAuthModule,
-  ],
-  providers: [
-    AuthService
   ]
 })
-export class AuthModule { }
+export class AuthModule {
+  constructor(@Optional() @SkipSelf() core: AuthModule) {
+    if (core) {
+      throw new Error('Core module imported multiple times!');
+    }
+  }
+
+  static forRoot(): ModuleWithProviders {
+    return {
+      ngModule: AuthModule
+    };
+  }
+}

@@ -1,26 +1,17 @@
-import { NgModule, Optional, SkipSelf } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ModuleWithProviders, NgModule, Optional, SkipSelf } from '@angular/core';
 import { AngularFireModule } from '@angular/fire';
 import { environment } from 'src/environments/environment';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { AngularFireDatabase } from '@angular/fire/database';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AuthModule } from '../auth/auth.module';
-import { FirabaseStateCommunicationService } from './firabase-state-communication.service';
 
 @NgModule({
-  declarations: [
-  ],
   imports: [
-    CommonModule,
     BrowserAnimationsModule,
     AngularFireModule.initializeApp(environment.firebase),
     AngularFirestoreModule,
-    AuthModule
-  ],
-  providers: [
-    AngularFireDatabase,
-    FirabaseStateCommunicationService
+    AuthModule.forRoot()
   ]
 })
 export class CoreModule {
@@ -29,5 +20,14 @@ export class CoreModule {
     if (core) {
       throw new Error('Core module imported multiple times!');
     }
+  }
+
+  static forRoot(): ModuleWithProviders {
+    return {
+      ngModule: CoreModule,
+      providers: [
+        AngularFireDatabase
+      ]
+    };
   }
  }
