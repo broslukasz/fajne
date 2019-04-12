@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AngularFireDatabase } from '@angular/fire/database';
-import { BehaviorSubject, combineLatest } from 'rxjs';
+import { combineLatest } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 import { CurrentContextState } from './enums/context-state.enum';
 import { FirebaseObject } from '../core/enums/firebase-object';
@@ -16,8 +16,7 @@ import { ActionButton } from './action-button';
   providers: [ActionService]
 })
 export class ActionComponent implements OnInit, OnDestroy {
-  private actionRunning$: BehaviorSubject<boolean> = new BehaviorSubject(false);
-  public actionButton: ActionButton;
+  actionButton: ActionButton;
 
   private readonly resultAppearanceTime: number = 3000;
 
@@ -43,9 +42,9 @@ export class ActionComponent implements OnInit, OnDestroy {
     this.db.database.ref(FirebaseObject.ActionRunning).onDisconnect().set(false);
   }
 
-  public ngOnDestroy(): void { }
+  ngOnDestroy(): void { }
 
-  public performContextAction(): void {
+  performContextAction(): void {
     switch (this.actionButton.currentContextState) {
       case CurrentContextState.LoginView:
         this.actionButton = this.actionService.loginAction();
@@ -62,7 +61,7 @@ export class ActionComponent implements OnInit, OnDestroy {
         break;
 
       case CurrentContextState.ParticipantInAction:
-        this.incrementSpeachFeature();
+        this.actionService.incrementSpeachFeature();
         break;
 
       case CurrentContextState.ShowResult:
@@ -82,8 +81,6 @@ export class ActionComponent implements OnInit, OnDestroy {
       this.db.object<string>(FirebaseObject.CurrentPerformer).valueChanges()
     )
       .subscribe(([actionRunning, currentPerformer]: [boolean, string]) => {
-        this.actionRunning$.next(actionRunning);
-
         if (!isNullOrUndefined(actionRunning) && !isNullOrUndefined(currentPerformer)) {
           this.reactOnNewContext(actionRunning, currentPerformer);
         }
@@ -109,7 +106,7 @@ export class ActionComponent implements OnInit, OnDestroy {
 
     if (this.itWasMeWhoFinishedTheAction(actionRunning, currentSpeaker)) {
       this.actionButton = this.actionService.goToShowResultState();
-      this.resetTheResult();
+      this.actionService.resetTheResult();
       setTimeout(() => this.actionButton = this.actionService.goToActionStartState(), this.resultAppearanceTime);
       return;
     }
@@ -122,10 +119,6 @@ export class ActionComponent implements OnInit, OnDestroy {
     }
 
     this.actionButton = this.actionService.setEnableVotingForParticipant();
-  }
-
-  private resetTheResult() {
-    this.db.object<number>(FirebaseObject.ActionCounter).set(0);
   }
 
   private itWasMeWhoStartedAction(speachRunning: boolean, currentSpeaker: string): boolean {
@@ -144,10 +137,5 @@ export class ActionComponent implements OnInit, OnDestroy {
 
   private someoneElseFinishedTheAction(speachRunning: boolean, currentSpeaker: string): boolean {
     return !speachRunning && currentSpeaker !== this.authService.userUid;
-  }
-
-  private incrementSpeachFeature(): void {
-    let currentActionCounterValue: number = this.actionService.actionCounter$.getValue();
-    this.db.object<number>(FirebaseObject.ActionCounter).set(++currentActionCounterValue);
   }
 }

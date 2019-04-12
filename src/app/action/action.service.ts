@@ -9,19 +9,19 @@ import { ActionButton } from './action-button';
 
 @Injectable()
 export class ActionService {
-  public actionCounter$: BehaviorSubject<number> = new BehaviorSubject(0);
+  actionCounter$: BehaviorSubject<number> = new BehaviorSubject(0);
 
   constructor(
     private db: AngularFireDatabase
   ) { }
 
-  public initializaActionCounter(): void {
+  initializaActionCounter(): void {
     this.db.object<number>(FirebaseObject.ActionCounter).valueChanges().subscribe((counterValue: number) => {
       this.actionCounter$.next(counterValue);
     });
   }
 
-  public setWaitForConnectionState(): ActionButton {
+  setWaitForConnectionState(): ActionButton {
     return ActionButton.changeContext(
       ContextAction.WaitForConnection,
       CurrentContextState.WaitForConnection,
@@ -29,7 +29,7 @@ export class ActionService {
     );
   }
 
-  public goToActionStartState(): ActionButton {
+  goToActionStartState(): ActionButton {
     return ActionButton.changeContext(
       ContextAction.ActionStart,
       CurrentContextState.ActionStart,
@@ -37,14 +37,14 @@ export class ActionService {
     );
   }
 
-  public loginAction(): ActionButton {
+  loginAction(): ActionButton {
     return ActionButton.changeContext(
       ContextAction.ActionStart,
       CurrentContextState.ActionStart
     );
   }
 
-  public startActionAsPerformer(): ActionButton {
+  startActionAsPerformer(): ActionButton {
     return ActionButton.changeContext(
       ContextAction.ActionForPerformer,
       CurrentContextState.PerformerInAction,
@@ -52,7 +52,7 @@ export class ActionService {
     );
   }
 
-  public goToThankYouState(): ActionButton {
+  goToThankYouState(): ActionButton {
     return ActionButton.changeContext(
       ContextAction.ThankYouInformation,
       CurrentContextState.ThankYouInformation,
@@ -60,7 +60,7 @@ export class ActionService {
     );
   }
 
-  public goToShowResultState(): ActionButton {
+  goToShowResultState(): ActionButton {
     return ActionButton.changeContext(
       this.actionCounter$.getValue(),
       CurrentContextState.ShowResult,
@@ -68,11 +68,20 @@ export class ActionService {
     );
   }
 
-  public setEnableVotingForParticipant(): ActionButton {
+  setEnableVotingForParticipant(): ActionButton {
     return ActionButton.changeContext(
       ContextAction.ActionForParticipant,
       CurrentContextState.ParticipantInAction,
       ButtonContextClass.ParticipantInAction
     );
+  }
+
+  resetTheResult(): void {
+    this.db.object<number>(FirebaseObject.ActionCounter).set(0);
+  }
+
+  incrementSpeachFeature(): void {
+    let currentActionCounterValue: number = this.actionCounter$.getValue();
+    this.db.object<number>(FirebaseObject.ActionCounter).set(++currentActionCounterValue);
   }
 }
