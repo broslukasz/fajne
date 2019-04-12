@@ -3,9 +3,10 @@ import { Router } from '@angular/router';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { BehaviorSubject } from 'rxjs';
 import * as firebase from 'firebase/app';
+import { AuthModule } from './auth.module';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: AuthModule
 })
 export class AuthService {
   public user$: BehaviorSubject<firebase.User | null> = new BehaviorSubject(null);

@@ -1,5 +1,4 @@
 import { ModuleWithProviders, NgModule, Optional, SkipSelf } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { AngularFireModule } from '@angular/fire';
 import { environment } from 'src/environments/environment';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
@@ -8,17 +7,11 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AuthModule } from '../auth/auth.module';
 
 @NgModule({
-  declarations: [
-  ],
   imports: [
-    CommonModule,
     BrowserAnimationsModule,
     AngularFireModule.initializeApp(environment.firebase),
     AngularFirestoreModule,
-    AuthModule
-  ],
-  providers: [
-    AngularFireDatabase
+    AuthModule.forRoot()
   ]
 })
 export class CoreModule {
