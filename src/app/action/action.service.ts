@@ -32,63 +32,11 @@ export class ActionService {
     });
   }
 
-  private setWaitForConnectionState(): ActionButton {
-    return ActionButton.changeContext(
-      ContextAction.WaitForConnection,
-      CurrentContextState.WaitForConnection,
-      ButtonContextClass.WaitForConnection
-    );
-  }
-
-  goToActionStartState(): void {
-    this.actionButtonSource.next(ActionButton.changeContext(
-      ContextAction.ActionStart,
-      CurrentContextState.ActionStart,
-      ButtonContextClass.ActionStart,
-    ));
-  }
-
   loginAction(): void {
     this.actionButtonSource.next(ActionButton.changeContext(
       ContextAction.ActionStart,
       CurrentContextState.ActionStart
     ));
-  }
-
-  startActionAsPerformer(): void {
-    this.actionButtonSource.next(ActionButton.changeContext(
-      ContextAction.ActionForPerformer,
-      CurrentContextState.PerformerInAction,
-      ButtonContextClass.PerformerInAction
-    ));
-  }
-
-  goToThankYouState(): void {
-    this.actionButtonSource.next(ActionButton.changeContext(
-      ContextAction.ThankYouInformation,
-      CurrentContextState.ThankYouInformation,
-      ButtonContextClass.ThankYouInformation,
-    ));
-  }
-
-  goToShowResultState(): void {
-    this.actionButtonSource.next(ActionButton.changeContext(
-      this.actionCounter$.getValue(),
-      CurrentContextState.ShowResult,
-      ButtonContextClass.ShowResult,
-    ));
-  }
-
-  setEnableVotingForParticipant(): void {
-    this.actionButtonSource.next(ActionButton.changeContext(
-      ContextAction.ActionForParticipant,
-      CurrentContextState.ParticipantInAction,
-      ButtonContextClass.ParticipantInAction
-    ));
-  }
-
-  resetTheResult(): void {
-    this.db.object<number>(FirebaseObject.ActionCounter).set(0);
   }
 
   incrementSpeachFeature(): void {
@@ -110,6 +58,14 @@ export class ActionService {
           this.reactOnNewContext(actionRunning, currentPerformer);
         }
       });
+  }
+
+  goToActionStartState(): void {
+    this.actionButtonSource.next(ActionButton.changeContext(
+      ContextAction.ActionStart,
+      CurrentContextState.ActionStart,
+      ButtonContextClass.ActionStart,
+    ));
   }
 
   private reactOnNewContext(actionRunning: boolean, currentSpeaker: string): void {
@@ -162,5 +118,49 @@ export class ActionService {
 
   private someoneElseFinishedTheAction(speachRunning: boolean, currentSpeaker: string): boolean {
     return !speachRunning && currentSpeaker !== this.authService.userUid;
+  }
+
+  private setWaitForConnectionState(): ActionButton {
+    return ActionButton.changeContext(
+      ContextAction.WaitForConnection,
+      CurrentContextState.WaitForConnection,
+      ButtonContextClass.WaitForConnection
+    );
+  }
+
+  private startActionAsPerformer(): void {
+    this.actionButtonSource.next(ActionButton.changeContext(
+      ContextAction.ActionForPerformer,
+      CurrentContextState.PerformerInAction,
+      ButtonContextClass.PerformerInAction
+    ));
+  }
+
+  private goToThankYouState(): void {
+    this.actionButtonSource.next(ActionButton.changeContext(
+      ContextAction.ThankYouInformation,
+      CurrentContextState.ThankYouInformation,
+      ButtonContextClass.ThankYouInformation,
+    ));
+  }
+
+  private goToShowResultState(): void {
+    this.actionButtonSource.next(ActionButton.changeContext(
+      this.actionCounter$.getValue(),
+      CurrentContextState.ShowResult,
+      ButtonContextClass.ShowResult,
+    ));
+  }
+
+  private setEnableVotingForParticipant(): void {
+    this.actionButtonSource.next(ActionButton.changeContext(
+      ContextAction.ActionForParticipant,
+      CurrentContextState.ParticipantInAction,
+      ButtonContextClass.ParticipantInAction
+    ));
+  }
+
+  private resetTheResult(): void {
+    this.db.object<number>(FirebaseObject.ActionCounter).set(0);
   }
 }
