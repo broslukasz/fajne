@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AngularFireDatabase } from '@angular/fire/database';
-import { combineLatest } from 'rxjs';
+import { combineLatest, Observable } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 import { CurrentContextState } from './enums/context-state.enum';
 import { FirebaseObject } from '../core/enums/firebase-object';
@@ -16,9 +16,8 @@ import { ActionButton } from './action-button';
   providers: [ActionService]
 })
 export class ActionComponent implements OnInit, OnDestroy {
-  actionButton: ActionButton;
-
   private readonly resultAppearanceTime: number = 3000;
+  actionButton$: Observable<ActionButton>;
 
   constructor(
     public authService: AuthService,
@@ -27,15 +26,15 @@ export class ActionComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
+    this.actionButton$ = this.actionService.actionButton$;
     this.authService.login();
     this.authService.user$.subscribe((user: (firebase.User | null)) => {
       if (!user) {
-        this.actionButton = this.actionService.setWaitForConnectionState();
         return;
       }
 
       this.actionService.initializaActionCounter();
-      this.actionButton = this.actionService.goToActionStartState();
+      this.actionService.goToActionStartState();
       this.watchForContextChanges();
     });
 
@@ -45,9 +44,9 @@ export class ActionComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void { }
 
   performContextAction(): void {
-    switch (this.actionButton.currentContextState) {
+    switch (this.actionService.getCurrentContextState()) {
       case CurrentContextState.LoginView:
-        this.actionButton = this.actionService.loginAction();
+        this.actionService.loginAction();
         break;
 
       case CurrentContextState.ActionStart:
@@ -94,31 +93,31 @@ export class ActionComponent implements OnInit, OnDestroy {
     }
 
     if (this.itWasMeWhoStartedAction(actionRunning, currentSpeaker)) {
-      this.actionButton = this.actionService.startActionAsPerformer();
+      this.actionService.startActionAsPerformer();
       return;
     }
 
     if (this.someoneElseFinishedTheAction(actionRunning, currentSpeaker)) {
-      this.actionButton = this.actionService.goToThankYouState();
-      setTimeout(() => this.actionButton = this.actionService.goToActionStartState(), this.resultAppearanceTime);
+      this.actionService.goToThankYouState();
+      setTimeout(() => this.actionService.goToActionStartState(), this.resultAppearanceTime);
       return;
     }
 
     if (this.itWasMeWhoFinishedTheAction(actionRunning, currentSpeaker)) {
-      this.actionButton = this.actionService.goToShowResultState();
+      this.actionService.goToShowResultState();
       this.actionService.resetTheResult();
-      setTimeout(() => this.actionButton = this.actionService.goToActionStartState(), this.resultAppearanceTime);
+      setTimeout(() => this.actionService.goToActionStartState(), this.resultAppearanceTime);
       return;
     }
   }
 
   private enableVotingForParticipant(): void {
-    if (this.actionButton.currentContextState === CurrentContextState.ShowResult) {
-      setTimeout(() => this.actionButton = this.actionService.setEnableVotingForParticipant(), this.resultAppearanceTime);
+    if (this.actionService.getCurrentContextState() === CurrentContextState.ShowResult) {
+      setTimeout(() => this.actionService.setEnableVotingForParticipant(), this.resultAppearanceTime);
       return;
     }
 
-    this.actionButton = this.actionService.setEnableVotingForParticipant();
+    this.actionService.setEnableVotingForParticipant();
   }
 
   private itWasMeWhoStartedAction(speachRunning: boolean, currentSpeaker: string): boolean {
@@ -132,7 +131,7 @@ export class ActionComponent implements OnInit, OnDestroy {
   private itWasMeWhoFinishedTheAction(speachRunning: boolean, currentSpeaker: string): boolean {
     return !speachRunning &&
            currentSpeaker === this.authService.userUid &&
-           this.actionButton.currentContextState === CurrentContextState.PerformerInAction;
+           this.actionService.getCurrentContextState() === CurrentContextState.PerformerInAction;
   }
 
   private someoneElseFinishedTheAction(speachRunning: boolean, currentSpeaker: string): boolean {

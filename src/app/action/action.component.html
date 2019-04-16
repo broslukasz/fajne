@@ -1,5 +1,5 @@
 <button
-  [ngClass]="actionButton.buttonContextClass"
+  [ngClass]="(actionButton$ | async).buttonContextClass"
   (click)="performContextAction()"
   mat-fab color="primary"
-  [disabled]="!(authService.user$ | async)">{{ actionButton.nextContextAction }}</button>
+  [disabled]="!(authService.user$ | async)">{{ (actionButton$ | async).nextContextAction }}</button>

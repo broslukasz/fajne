@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AngularFireDatabase } from '@angular/fire/database';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { FirebaseObject } from '../core/enums/firebase-object';
 import { ContextAction } from './enums/context-action.enum';
 import { CurrentContextState } from './enums/context-state.enum';
@@ -10,6 +10,9 @@ import { ActionButton } from './action-button';
 @Injectable()
 export class ActionService {
   actionCounter$: BehaviorSubject<number> = new BehaviorSubject(0);
+
+  private actionButtonSource = new BehaviorSubject<ActionButton>(this.setWaitForConnectionState());
+  actionButton$: Observable<ActionButton> = this.actionButtonSource.asObservable();
 
   constructor(
     private db: AngularFireDatabase
@@ -29,51 +32,51 @@ export class ActionService {
     );
   }
 
-  goToActionStartState(): ActionButton {
-    return ActionButton.changeContext(
+  goToActionStartState(): void {
+    this.actionButtonSource.next(ActionButton.changeContext(
       ContextAction.ActionStart,
       CurrentContextState.ActionStart,
       ButtonContextClass.ActionStart,
-    );
+    ));
   }
 
-  loginAction(): ActionButton {
-    return ActionButton.changeContext(
+  loginAction(): void {
+    this.actionButtonSource.next(ActionButton.changeContext(
       ContextAction.ActionStart,
       CurrentContextState.ActionStart
-    );
+    ));
   }
 
-  startActionAsPerformer(): ActionButton {
-    return ActionButton.changeContext(
+  startActionAsPerformer(): void {
+    this.actionButtonSource.next(ActionButton.changeContext(
       ContextAction.ActionForPerformer,
       CurrentContextState.PerformerInAction,
       ButtonContextClass.PerformerInAction
-    );
+    ));
   }
 
-  goToThankYouState(): ActionButton {
-    return ActionButton.changeContext(
+  goToThankYouState(): void {
+    this.actionButtonSource.next(ActionButton.changeContext(
       ContextAction.ThankYouInformation,
       CurrentContextState.ThankYouInformation,
       ButtonContextClass.ThankYouInformation,
-    );
+    ));
   }
 
-  goToShowResultState(): ActionButton {
-    return ActionButton.changeContext(
+  goToShowResultState(): void {
+    this.actionButtonSource.next(ActionButton.changeContext(
       this.actionCounter$.getValue(),
       CurrentContextState.ShowResult,
       ButtonContextClass.ShowResult,
-    );
+    ));
   }
 
-  setEnableVotingForParticipant(): ActionButton {
-    return ActionButton.changeContext(
+  setEnableVotingForParticipant(): void {
+    this.actionButtonSource.next(ActionButton.changeContext(
       ContextAction.ActionForParticipant,
       CurrentContextState.ParticipantInAction,
       ButtonContextClass.ParticipantInAction
-    );
+    ));
   }
 
   resetTheResult(): void {
@@ -83,5 +86,9 @@ export class ActionService {
   incrementSpeachFeature(): void {
     let currentActionCounterValue: number = this.actionCounter$.getValue();
     this.db.object<number>(FirebaseObject.ActionCounter).set(++currentActionCounterValue);
+  }
+
+  getCurrentContextState(): CurrentContextState {
+    return this.actionButtonSource.getValue().currentContextState;
   }
 }
