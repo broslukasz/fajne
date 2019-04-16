@@ -27,7 +27,7 @@ export class ActionComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.actionButton$ = this.actionService.getActionButtonReference();
     this.authService.login();
-    this.userSubscription = this.authService.user$.subscribe((user: (firebase.User | null)) => {
+    this.userSubscription = this.authService.getUser().subscribe((user: (firebase.User | null)) => {
       if (!user) {
         return;
       }
@@ -41,7 +41,9 @@ export class ActionComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.userSubscription.unsubscribe();
+    if (this.userSubscription) {
+      this.userSubscription.unsubscribe();
+    }
   }
 
   performContextAction(): void {
@@ -52,7 +54,7 @@ export class ActionComponent implements OnInit, OnDestroy {
 
       case CurrentContextState.ActionStart:
         this.db.object<boolean>(FirebaseObject.ActionRunning).set(true);
-        this.db.object<string>(FirebaseObject.CurrentPerformer).set(this.authService.user$.getValue().uid);
+        this.db.object<string>(FirebaseObject.CurrentPerformer).set(this.authService.getUserValue().uid);
         break;
 
       case CurrentContextState.PerformerInAction:

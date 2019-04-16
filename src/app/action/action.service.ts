@@ -32,7 +32,7 @@ export class ActionService {
     });
   }
 
-  setWaitForConnectionState(): ActionButton {
+  private setWaitForConnectionState(): ActionButton {
     return ActionButton.changeContext(
       ContextAction.WaitForConnection,
       CurrentContextState.WaitForConnection,
