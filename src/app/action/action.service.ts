@@ -22,6 +22,10 @@ export class ActionService {
     private authService: AuthService
   ) { }
 
+  getActionButtonReference(): Observable<ActionButton> {
+    return this.actionButton$;
+  }
+
   initializaActionCounter(): void {
     this.db.object<number>(FirebaseObject.ActionCounter).valueChanges().subscribe((counterValue: number) => {
       this.actionCounter$.next(counterValue);

@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AngularFireDatabase } from '@angular/fire/database';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 import { CurrentContextState } from './enums/context-state.enum';
 import { FirebaseObject } from '../core/enums/firebase-object';
@@ -16,6 +16,7 @@ import { ActionButton } from './action-button';
 })
 export class ActionComponent implements OnInit, OnDestroy {
   actionButton$: Observable<ActionButton>;
+  private userSubscription: Subscription;
 
   constructor(
     public authService: AuthService,
@@ -24,9 +25,9 @@ export class ActionComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    this.actionButton$ = this.actionService.actionButton$;
+    this.actionButton$ = this.actionService.getActionButtonReference();
     this.authService.login();
-    this.authService.user$.subscribe((user: (firebase.User | null)) => {
+    this.userSubscription = this.authService.user$.subscribe((user: (firebase.User | null)) => {
       if (!user) {
         return;
       }
@@ -39,7 +40,9 @@ export class ActionComponent implements OnInit, OnDestroy {
     this.db.database.ref(FirebaseObject.ActionRunning).onDisconnect().set(false);
   }
 
-  ngOnDestroy(): void { }
+  ngOnDestroy(): void {
+    this.userSubscription.unsubscribe();
+  }
 
   performContextAction(): void {
     switch (this.actionService.getCurrentContextState()) {
