@@ -1,21 +1,25 @@
 import { Injectable } from '@angular/core';
 import { AngularFireDatabase } from '@angular/fire/database';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import { FirebaseObject } from '../core/enums/firebase-object';
 import { ContextAction } from './enums/context-action.enum';
 import { CurrentContextState } from './enums/context-state.enum';
 import { ButtonContextClass } from './enums/button-context-class.enum';
 import { ActionButton } from './action-button';
+import { isNullOrUndefined } from 'util';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class ActionService {
-  actionCounter$: BehaviorSubject<number> = new BehaviorSubject(0);
-
+  private readonly resultAppearanceTime: number = 3000;
   private actionButtonSource = new BehaviorSubject<ActionButton>(this.setWaitForConnectionState());
+
+  actionCounter$: BehaviorSubject<number> = new BehaviorSubject(0);
   actionButton$: Observable<ActionButton> = this.actionButtonSource.asObservable();
 
   constructor(
-    private db: AngularFireDatabase
+    private db: AngularFireDatabase,
+    private authService: AuthService
   ) { }
 
   initializaActionCounter(): void {
@@ -90,5 +94,69 @@ export class ActionService {
 
   getCurrentContextState(): CurrentContextState {
     return this.actionButtonSource.getValue().currentContextState;
+  }
+
+  watchForContextChanges(): void {
+    combineLatest(
+      this.db.object<boolean>(FirebaseObject.ActionRunning).valueChanges(),
+      this.db.object<string>(FirebaseObject.CurrentPerformer).valueChanges()
+    )
+      .subscribe(([actionRunning, currentPerformer]: [boolean, string]) => {
+        if (!isNullOrUndefined(actionRunning) && !isNullOrUndefined(currentPerformer)) {
+          this.reactOnNewContext(actionRunning, currentPerformer);
+        }
+      });
+  }
+
+  private reactOnNewContext(actionRunning: boolean, currentSpeaker: string): void {
+    if (this.someoneElseStartedAction(actionRunning, currentSpeaker)) {
+      this.enableVotingForParticipant();
+      return;
+    }
+
+    if (this.itWasMeWhoStartedAction(actionRunning, currentSpeaker)) {
+      this.startActionAsPerformer();
+      return;
+    }
+
+    if (this.someoneElseFinishedTheAction(actionRunning, currentSpeaker)) {
+      this.goToThankYouState();
+      setTimeout(() => this.goToActionStartState(), this.resultAppearanceTime);
+      return;
+    }
+
+    if (this.itWasMeWhoFinishedTheAction(actionRunning, currentSpeaker)) {
+      this.goToShowResultState();
+      this.resetTheResult();
+      setTimeout(() => this.goToActionStartState(), this.resultAppearanceTime);
+      return;
+    }
+  }
+
+  private enableVotingForParticipant(): void {
+    if (this.getCurrentContextState() === CurrentContextState.ShowResult) {
+      setTimeout(() => this.setEnableVotingForParticipant(), this.resultAppearanceTime);
+      return;
+    }
+
+    this.setEnableVotingForParticipant();
+  }
+
+  private itWasMeWhoStartedAction(speachRunning: boolean, currentSpeaker: string): boolean {
+    return speachRunning && currentSpeaker === this.authService.userUid;
+  }
+
+  private someoneElseStartedAction(speachRunning: boolean, currentSpeaker: string) {
+    return speachRunning && currentSpeaker !== this.authService.userUid;
+  }
+
+  private itWasMeWhoFinishedTheAction(speachRunning: boolean, currentSpeaker: string): boolean {
+    return !speachRunning &&
+      currentSpeaker === this.authService.userUid &&
+      this.getCurrentContextState() === CurrentContextState.PerformerInAction;
+  }
+
+  private someoneElseFinishedTheAction(speachRunning: boolean, currentSpeaker: string): boolean {
+    return !speachRunning && currentSpeaker !== this.authService.userUid;
   }
 }

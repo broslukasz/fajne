@@ -1,11 +1,10 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AngularFireDatabase } from '@angular/fire/database';
-import { combineLatest, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 import { CurrentContextState } from './enums/context-state.enum';
 import { FirebaseObject } from '../core/enums/firebase-object';
 import * as firebase from 'firebase/app';
-import { isNullOrUndefined } from 'util';
 import { ActionService } from './action.service';
 import { ActionButton } from './action-button';
 
@@ -16,7 +15,6 @@ import { ActionButton } from './action-button';
   providers: [ActionService]
 })
 export class ActionComponent implements OnInit, OnDestroy {
-  private readonly resultAppearanceTime: number = 3000;
   actionButton$: Observable<ActionButton>;
 
   constructor(
@@ -35,7 +33,7 @@ export class ActionComponent implements OnInit, OnDestroy {
 
       this.actionService.initializaActionCounter();
       this.actionService.goToActionStartState();
-      this.watchForContextChanges();
+      this.actionService.watchForContextChanges();
     });
 
     this.db.database.ref(FirebaseObject.ActionRunning).onDisconnect().set(false);
@@ -72,69 +70,5 @@ export class ActionComponent implements OnInit, OnDestroy {
       default:
       throw new Error('Unrecognized action');
     }
-  }
-
-  private watchForContextChanges(): void {
-    combineLatest(
-      this.db.object<boolean>(FirebaseObject.ActionRunning).valueChanges(),
-      this.db.object<string>(FirebaseObject.CurrentPerformer).valueChanges()
-    )
-      .subscribe(([actionRunning, currentPerformer]: [boolean, string]) => {
-        if (!isNullOrUndefined(actionRunning) && !isNullOrUndefined(currentPerformer)) {
-          this.reactOnNewContext(actionRunning, currentPerformer);
-        }
-      });
-  }
-
-  private reactOnNewContext(actionRunning: boolean, currentSpeaker: string): void {
-    if (this.someoneElseStartedAction(actionRunning, currentSpeaker)) {
-      this.enableVotingForParticipant();
-      return;
-    }
-
-    if (this.itWasMeWhoStartedAction(actionRunning, currentSpeaker)) {
-      this.actionService.startActionAsPerformer();
-      return;
-    }
-
-    if (this.someoneElseFinishedTheAction(actionRunning, currentSpeaker)) {
-      this.actionService.goToThankYouState();
-      setTimeout(() => this.actionService.goToActionStartState(), this.resultAppearanceTime);
-      return;
-    }
-
-    if (this.itWasMeWhoFinishedTheAction(actionRunning, currentSpeaker)) {
-      this.actionService.goToShowResultState();
-      this.actionService.resetTheResult();
-      setTimeout(() => this.actionService.goToActionStartState(), this.resultAppearanceTime);
-      return;
-    }
-  }
-
-  private enableVotingForParticipant(): void {
-    if (this.actionService.getCurrentContextState() === CurrentContextState.ShowResult) {
-      setTimeout(() => this.actionService.setEnableVotingForParticipant(), this.resultAppearanceTime);
-      return;
-    }
-
-    this.actionService.setEnableVotingForParticipant();
-  }
-
-  private itWasMeWhoStartedAction(speachRunning: boolean, currentSpeaker: string): boolean {
-    return speachRunning && currentSpeaker === this.authService.userUid;
-  }
-
-  private someoneElseStartedAction(speachRunning: boolean, currentSpeaker: string) {
-    return speachRunning && currentSpeaker !== this.authService.userUid;
-  }
-
-  private itWasMeWhoFinishedTheAction(speachRunning: boolean, currentSpeaker: string): boolean {
-    return !speachRunning &&
-           currentSpeaker === this.authService.userUid &&
-           this.actionService.getCurrentContextState() === CurrentContextState.PerformerInAction;
-  }
-
-  private someoneElseFinishedTheAction(speachRunning: boolean, currentSpeaker: string): boolean {
-    return !speachRunning && currentSpeaker !== this.authService.userUid;
   }
 }
