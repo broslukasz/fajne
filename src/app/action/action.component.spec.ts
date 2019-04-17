@@ -141,4 +141,16 @@ describe('ActionComponent', () => {
     // Assert
     expect(chartService.setActionStartTime).toHaveBeenCalled();
   });
+
+  it('should reset chart data when action start performed', () => {
+    // Arrange
+    spyOn(chartService, 'resetChartData').and.callThrough();
+    spyOn(actionService, 'getCurrentContextState').and.returnValue(CurrentContextState.ActionStart);
+
+    // Act
+    component.performContextAction();
+
+    // Assert
+    expect(chartService.resetChartData).toHaveBeenCalled();
+  });
 });

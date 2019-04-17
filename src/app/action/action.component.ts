@@ -64,6 +64,7 @@ export class ActionComponent implements OnInit, OnDestroy {
         this.db.object<boolean>(FirebaseObject.ActionRunning).set(true);
         this.db.object<string>(FirebaseObject.CurrentPerformer).set(this.authService.getUserValue().uid);
         this.chartService.setActionStartTime(Date.now());
+        this.chartService.resetChartData();
         break;
 
       case CurrentContextState.PerformerInAction:

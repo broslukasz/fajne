@@ -54,9 +54,17 @@ export class ChartService implements OnDestroy {
     this.actionStartTime = startTime;
   }
 
+  resetChartData(): void {
+    this.chartData.splice(0);
+  }
+
   initializaActionCounter(): void {
     this.actionCounterSubscription = this.db.object<number>(FirebaseObject.ActionCounter)
-      .valueChanges().subscribe(() => {
+      .valueChanges().subscribe((value: number) => {
+        if (value === 0) {
+          return;
+        }
+
         this.createReactionChartData();
       });
   }
