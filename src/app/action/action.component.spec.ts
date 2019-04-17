@@ -14,6 +14,7 @@ import { ContextAction } from './enums/context-action.enum';
 import { CurrentContextState } from './enums/context-state.enum';
 import { ButtonContextClass } from './enums/button-context-class.enum';
 import { ChartModule } from 'angular-highcharts';
+import { ChartService } from './services/chart.service';
 
 describe('ActionComponent', () => {
   let component: ActionComponent;
@@ -32,6 +33,7 @@ describe('ActionComponent', () => {
   const angularFireDatabaseMock: AngularFireDatabase = mock(AngularFireDatabase);
   const actionServiceMock: ActionService = mock(ActionService);
   const authServiceMock: AuthService = mock(AuthService);
+  const chartServiceMock: ChartService = mock(ChartService);
 
   when(angularFireDatabaseMock.object(anything())).thenReturn(
     <any>{
@@ -60,6 +62,7 @@ describe('ActionComponent', () => {
       providers: [
         {provide: AngularFireDatabase, useValue: instance(angularFireDatabaseMock)},
         {provide: AuthService, useValue: instance(authServiceMock)},
+        {provide: ChartService, useValue: instance(chartServiceMock)}
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA]
     }).overrideComponent(ActionComponent, {

@@ -1,4 +1,4 @@
-<button *ngIf="showChart; else chartView"
+<button *ngIf="!showChart; else chartView"
   [ngClass]="(actionButton$ | async).buttonContextClass"
   (click)="performContextAction()"
   mat-fab color="primary"

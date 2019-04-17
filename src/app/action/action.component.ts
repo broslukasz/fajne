@@ -7,44 +7,17 @@ import { FirebaseObject } from '../core/enums/firebase-object';
 import * as firebase from 'firebase/app';
 import { ActionService } from './action.service';
 import { ActionButton } from './action-button';
+import { ChartService } from './services/chart.service';
 import { Chart } from 'angular-highcharts';
 
 @Component({
   selector: 'app-action',
   templateUrl: './action.component.html',
   styleUrls: ['./action.component.scss'],
-  providers: [ActionService]
+  providers: [ActionService, ChartService]
 })
 export class ActionComponent implements OnInit, OnDestroy {
-  readonly data = [3.5, 3, 3.2, 3.1, 3.6, 3.9, 3.4, 3.4, 2.9, 3.1,
-    3.7, 3.4, 3, 3, 4, 4.4, 3.9, 3.5, 3.8, 3.8, 3.4, 3.7, 3.6, 3.3,
-    3.4, 3, 3.4, 3.5, 3.4, 3.2, 3.1, 3.4, 4.1, 4.2, 3.1, 3.2, 3.5,
-    3.6, 3, 3.4, 3.5];
-
-  chart = new Chart({
-    title: {
-      text: 'Reaction in time'
-    },
-    xAxis: [{
-      title: {text: 'Time'},
-      alignTicks: false
-    }],
-
-    yAxis: [{
-      title: {text: ''},
-    }],
-
-    series: [ {
-      name: 'single click',
-      type: 'scatter',
-      data: this.data,
-      id: 's1',
-      marker: {
-        radius: 1.5
-      }
-    }]
-  });
-
+  chart: Chart;
   actionButton$: Observable<ActionButton>;
   showChart = false;
 
@@ -53,6 +26,7 @@ export class ActionComponent implements OnInit, OnDestroy {
   constructor(
     public authService: AuthService,
     public actionService: ActionService,
+    public chartService: ChartService,
     private db: AngularFireDatabase
   ) {
   }
@@ -101,6 +75,7 @@ export class ActionComponent implements OnInit, OnDestroy {
 
       case CurrentContextState.ShowResult:
         this.showChart = !this.showChart;
+        this.chart = this.chartService.getChart();
         break;
 
       case CurrentContextState.ThankYouInformation:
