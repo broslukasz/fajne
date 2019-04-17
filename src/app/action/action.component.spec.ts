@@ -13,6 +13,7 @@ import { ActionButton } from './action-button';
 import { ContextAction } from './enums/context-action.enum';
 import { CurrentContextState } from './enums/context-state.enum';
 import { ButtonContextClass } from './enums/button-context-class.enum';
+import { ChartModule } from 'angular-highcharts';
 
 describe('ActionComponent', () => {
   let component: ActionComponent;
@@ -52,6 +53,9 @@ describe('ActionComponent', () => {
   beforeAll(done => (async () => {
 
     TestBed.configureTestingModule({
+      imports: [
+        ChartModule
+      ],
       declarations: [ ActionComponent ],
       providers: [
         {provide: AngularFireDatabase, useValue: instance(angularFireDatabaseMock)},
@@ -88,5 +92,12 @@ describe('ActionComponent', () => {
 
     // Assert
     expect(actionService.getActionButtonReference).toHaveBeenCalled();
+  });
+
+  it('should disable chart view', () => {
+    // Act
+    component.disableChartView();
+
+    expect(component.showChart).toBeFalsy();
   });
 });

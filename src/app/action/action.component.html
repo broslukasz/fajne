@@ -1,5 +1,9 @@
-<button
+<button *ngIf="showChart; else chartView"
   [ngClass]="(actionButton$ | async).buttonContextClass"
   (click)="performContextAction()"
   mat-fab color="primary"
   [disabled]="!(authService.user$ | async)">{{ (actionButton$ | async).nextContextAction }}</button>
+
+<ng-template #chartView>
+  <div class="chart" (click)="disableChartView()" [chart]="chart"></div>
+</ng-template>
