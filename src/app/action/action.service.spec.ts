@@ -3,7 +3,6 @@ import { TestBed } from '@angular/core/testing';
 import { ActionService } from './action.service';
 import { instance, mock } from 'ts-mockito';
 import { AuthService } from '../auth/auth.service';
-import { ChartService } from './services/chart.service';
 
 describe('ActionService', () => {
   const actionServiceMock: ActionService = mock(ActionService);

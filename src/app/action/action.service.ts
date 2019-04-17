@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { AngularFireDatabase } from '@angular/fire/database';
-import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, Subscription } from 'rxjs';
 import { FirebaseObject } from '../core/enums/firebase-object';
 import { ContextAction } from './enums/context-action.enum';
 import { CurrentContextState } from './enums/context-state.enum';
@@ -10,9 +10,10 @@ import { isNullOrUndefined } from 'util';
 import { AuthService } from '../auth/auth.service';
 
 @Injectable()
-export class ActionService {
+export class ActionService implements OnDestroy {
   private readonly resultAppearanceTime: number = 3000;
   private actionButtonSource = new BehaviorSubject<ActionButton>(this.setWaitForConnectionState());
+  private actionCounterSubscription: Subscription;
 
   actionCounter$: BehaviorSubject<number> = new BehaviorSubject(0);
   actionButton$: Observable<ActionButton> = this.actionButtonSource.asObservable();
@@ -22,13 +23,18 @@ export class ActionService {
     private authService: AuthService
   ) { }
 
+  ngOnDestroy(): void {
+    this.actionCounterSubscription.unsubscribe();
+  }
+
   getActionButtonReference(): Observable<ActionButton> {
     return this.actionButton$;
   }
 
   initializaActionCounter(): void {
-    this.db.object<number>(FirebaseObject.ActionCounter).valueChanges().subscribe((counterValue: number) => {
-      this.actionCounter$.next(counterValue);
+    this.actionCounterSubscription = this.db.object<number>(FirebaseObject.ActionCounter)
+      .valueChanges().subscribe((counterValue: number) => {
+        this.actionCounter$.next(counterValue);
     });
   }
 

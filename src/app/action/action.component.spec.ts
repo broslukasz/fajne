@@ -20,6 +20,7 @@ describe('ActionComponent', () => {
   let component: ActionComponent;
   let fixture: ComponentFixture<ActionComponent>;
   let actionService: ActionService;
+  let chartService: ChartService;
   let angularFireDatabase: AngularFireDatabase;
 
   const mockedDatabaseRef = {
@@ -37,7 +38,8 @@ describe('ActionComponent', () => {
 
   when(angularFireDatabaseMock.object(anything())).thenReturn(
     <any>{
-      valueChanges: () => of({})
+      valueChanges: () => of({}),
+      set: () => {}
     }
   );
 
@@ -49,6 +51,7 @@ describe('ActionComponent', () => {
       ButtonContextClass.WaitForConnection
     )
   ));
+  when(authServiceMock.getUserValue()).thenReturn({} as firebase.User);
 
   configureTestSuite();
 
@@ -62,13 +65,13 @@ describe('ActionComponent', () => {
       providers: [
         {provide: AngularFireDatabase, useValue: instance(angularFireDatabaseMock)},
         {provide: AuthService, useValue: instance(authServiceMock)},
-        {provide: ChartService, useValue: instance(chartServiceMock)}
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA]
     }).overrideComponent(ActionComponent, {
       set: {
         providers: [
-          { provide: ActionService, useValue: instance(actionServiceMock) },
+          {provide: ActionService, useValue: instance(actionServiceMock)},
+          {provide: ChartService, useValue: instance(chartServiceMock)}
         ]
       }
     }).compileComponents();
@@ -79,6 +82,7 @@ describe('ActionComponent', () => {
     fixture = TestBed.createComponent(ActionComponent);
     component = fixture.componentInstance;
     actionService = fixture.debugElement.injector.get(ActionService);
+    chartService = fixture.debugElement.injector.get(ChartService);
     angularFireDatabase = TestBed.get(AngularFireDatabase);
 
     angularFireDatabase.database.ref = (): any => mockedDatabaseRef;
@@ -102,5 +106,39 @@ describe('ActionComponent', () => {
     component.disableChartView();
 
     expect(component.showChart).toBeFalsy();
+  });
+
+  it('should initializa action counter for chart', () => {
+    // Arrange
+    spyOn(chartService, 'initializaActionCounter').and.callThrough();
+
+    // Act
+    fixture.detectChanges();
+
+    // Assert
+    expect(chartService.initializaActionCounter).toHaveBeenCalled();
+  });
+
+  it('should initializa action counter for action button', () => {
+    // Arrange
+    spyOn(actionService, 'initializaActionCounter').and.callThrough();
+
+    // Act
+    fixture.detectChanges();
+
+    // Assert
+    expect(actionService.initializaActionCounter).toHaveBeenCalled();
+  });
+
+  it('should track action start action time when start action performed', () => {
+    // Arrange
+    spyOn(chartService, 'setActionStartTime').and.callThrough();
+    spyOn(actionService, 'getCurrentContextState').and.returnValue(CurrentContextState.ActionStart);
+
+    // Act
+    component.performContextAction();
+
+    // Assert
+    expect(chartService.setActionStartTime).toHaveBeenCalled();
   });
 });

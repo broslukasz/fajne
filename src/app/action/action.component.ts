@@ -17,7 +17,7 @@ import { Chart } from 'angular-highcharts';
   providers: [ActionService, ChartService]
 })
 export class ActionComponent implements OnInit, OnDestroy {
-  chart: Chart = this.chartService.getChart();
+  chart: Chart;
   actionButton$: Observable<ActionButton>;
   showChart = false;
 
@@ -40,6 +40,7 @@ export class ActionComponent implements OnInit, OnDestroy {
       }
 
       this.actionService.initializaActionCounter();
+      this.chartService.initializaActionCounter();
       this.actionService.goToActionStartState();
       this.actionService.watchForContextChanges();
     });
@@ -62,6 +63,7 @@ export class ActionComponent implements OnInit, OnDestroy {
       case CurrentContextState.ActionStart:
         this.db.object<boolean>(FirebaseObject.ActionRunning).set(true);
         this.db.object<string>(FirebaseObject.CurrentPerformer).set(this.authService.getUserValue().uid);
+        this.chartService.setActionStartTime(Date.now());
         break;
 
       case CurrentContextState.PerformerInAction:

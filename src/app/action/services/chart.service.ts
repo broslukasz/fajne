@@ -1,19 +1,12 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { Chart } from 'angular-highcharts';
+import { FirebaseObject } from '../../core/enums/firebase-object';
+import { Subscription } from 'rxjs';
+import { AngularFireDatabase } from '@angular/fire/database';
 
 @Injectable()
-export class ChartService {
-  private readonly data = [
-    [1.23, Math.random()],
-    [2, Math.random()],
-    [3, Math.random()],
-    [7.17, Math.random()],
-    [8, Math.random()],
-    [9, Math.random()],
-    [20, Math.random()],
-    [21, Math.random()],
-    [22, Math.random()],
-  ];
+export class ChartService implements OnDestroy {
+  private readonly chartData = [];
 
   private chart = new Chart({
     chart: {
@@ -25,24 +18,53 @@ export class ChartService {
     },
     xAxis: {
       title: {
-        enabled: true,
         text: 'Time'
       }
     },
     yAxis: {
       title: {
-        enabled: false,
+        text: ''
       }
     },
     series: [{
       name: 'All clicks',
       color: 'rgba(223, 83, 83, .5)',
-      data: this.data,
+      data: this.chartData,
       type: 'scatter'
     }]
   });
 
+  private actionStartTime: number;
+  private actionCounterSubscription: Subscription;
+
+  constructor(
+    private db: AngularFireDatabase
+  ) { }
+
+  ngOnDestroy(): void {
+    this.actionCounterSubscription.unsubscribe();
+  }
+
+
   getChart(): Chart {
     return this.chart;
+  }
+
+  setActionStartTime(startTime: number): void {
+    this.actionStartTime = startTime;
+  }
+
+  initializaActionCounter(): void {
+    this.actionCounterSubscription = this.db.object<number>(FirebaseObject.ActionCounter)
+      .valueChanges().subscribe(() => {
+        this.createReactionChartData();
+      });
+  }
+
+  private createReactionChartData() {
+    const currentTime: number = Date.now();
+    const differenceInMinutes = (currentTime - this.actionStartTime) / 1000 / 60;
+
+    this.chartData.push([differenceInMinutes, Math.random()]);
   }
 }
