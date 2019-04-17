@@ -17,7 +17,7 @@ import { Chart } from 'angular-highcharts';
   providers: [ActionService, ChartService]
 })
 export class ActionComponent implements OnInit, OnDestroy {
-  chart: Chart;
+  chart: Chart = this.chartService.getChart();
   actionButton$: Observable<ActionButton>;
   showChart = false;
 

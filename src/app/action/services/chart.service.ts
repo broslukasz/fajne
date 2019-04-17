@@ -3,38 +3,44 @@ import { Chart } from 'angular-highcharts';
 
 @Injectable()
 export class ChartService {
-  private readonly data = [3.5, 3, 3.2, 3.1, 3.6, 3.9, 3.4, 3.4, 2.9, 3.1,
-    3.7, 3.4, 3, 3, 4, 4.4, 3.9, 3.5, 3.8, 3.8, 3.4, 3.7, 3.6, 3.3,
-    3.4, 3, 3.4, 3.5, 3.4, 3.2, 3.1, 3.4, 4.1, 4.2, 3.1, 3.2, 3.5,
-    3.6, 3, 3.4, 3.5, 3.5, 3, 3.2, 3.1, 3.6, 3.9, 3.4, 3.4, 2.9, 3.1,
-    3.7, 3.4, 3, 3, 4, 4.4, 3.9, 3.5, 3.8, 3.8, 3.4, 3.7, 3.6, 3.3,
-    3.4, 3, 3.4, 3.5, 3.4, 3.2, 3.1, 3.4, 4.1, 4.2, 3.1, 3.2, 3.5,
-    3.6, 3, 3.4, 3.5];
+  private readonly data = [
+    [1.23, Math.random()],
+    [2, Math.random()],
+    [3, Math.random()],
+    [7.17, Math.random()],
+    [8, Math.random()],
+    [9, Math.random()],
+    [20, Math.random()],
+    [21, Math.random()],
+    [22, Math.random()],
+  ];
 
   private chart = new Chart({
-    title: {
-      text: 'Reaction in time'
-    },
-    xAxis: [{
-      title: {text: 'Time'},
-      alignTicks: false
-    }],
-
-    yAxis: [{
-      title: {text: ''},
-    }],
-
-    series: [ {
-      name: 'single click',
+    chart: {
       type: 'scatter',
-      data: this.data,
-      id: 's1',
-      marker: {
-        radius: 2.5
+      zoomType: 'xy'
+    },
+    title: {
+      text: 'Reaction over time'
+    },
+    xAxis: {
+      title: {
+        enabled: true,
+        text: 'Time'
       }
+    },
+    yAxis: {
+      title: {
+        enabled: false,
+      }
+    },
+    series: [{
+      name: 'All clicks',
+      color: 'rgba(223, 83, 83, .5)',
+      data: this.data,
+      type: 'scatter'
     }]
   });
-
 
   getChart(): Chart {
     return this.chart;
